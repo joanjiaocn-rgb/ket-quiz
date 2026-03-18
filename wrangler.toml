@@ -5,4 +5,4 @@ pages_build_output_dir = "frontend"
 [[d1_databases]]
 binding = "DB"
 database_name = "ket-quiz-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "bd1d61d3-9637-477e-9f22-3039f7119b7e"
