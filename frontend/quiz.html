@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>答题中 🎯</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="quiz-page">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <button class="btn-sm" onclick="confirmExit()">← 返回</button>
+      <span id="quizTypeLabel">答题中</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="timer-box">⏱️ <span id="timer">00:00</span></span>
+      <span class="score-box">⭐ <span id="currentScore">0</span></span>
+    </div>
+  </header>
+  <main class="quiz-main">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+      <span id="progressText">0 / 0</span>
+    </div>
+    <div id="quizArea" class="quiz-area">
+      <div class="loading-anim">🌀 题目加载中...</div>
+    </div>
+    <div id="resultArea" class="result-area hidden">
+      <div class="result-card">
+        <div class="result-emoji" id="resultEmoji">🎉</div>
+        <h2 id="resultTitle">测试完成！</h2>
+        <div class="result-score">
+          <span id="finalScore">0</span> / <span id="finalTotal">0</span>
+        </div>
+        <p id="resultMsg"></p>
+        <div class="result-btns">
+          <button class="btn-primary" onclick="location.href='dashboard.html'">🏠 回首页</button>
+          <button class="btn-secondary" onclick="location.href='review.html'">📒 查错题</button>
+          <button class="btn-secondary" onclick="location.reload()">🔄 再来一次</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/quiz.js"></script>
+</body>
+</html>

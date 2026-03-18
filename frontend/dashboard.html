@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习中心 🌈</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dashboard-page">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="logo-small">🦄 KET冲刺小站</span>
+    </div>
+    <div class="top-bar-right">
+      <span id="welcomeUser">👋 同学</span>
+      <button class="btn-sm" onclick="location.href='review.html'">📒 错题本</button>
+      <button class="btn-sm" onclick="logout()">退出</button>
+    </div>
+  </header>
+  <main class="dashboard-main">
+    <div class="welcome-banner">
+      <h2>你好，<span id="userName"></span>！今天也要加油哦 💪</h2>
+    </div>
+    <section class="stats-section">
+      <h3>📊 我的进度</h3>
+      <div class="stats-grid" id="statsGrid"><div class="loading">加载中...</div></div>
+    </section>
+    <section class="quiz-section">
+      <h3>🎯 选择题型开始练习</h3>
+      <div class="type-grid">
+        <div class="type-card" onclick="startQuiz('vocabulary')"><div class="type-icon">📚</div><div class="type-name">单词</div><div class="type-desc">词汇积累</div></div>
+        <div class="type-card" onclick="startQuiz('grammar')"><div class="type-icon">✏️</div><div class="type-name">语法</div><div class="type-desc">句型结构</div></div>
+        <div class="type-card" onclick="startQuiz('reading')"><div class="type-icon">📖</div><div class="type-name">阅读</div><div class="type-desc">理解文章</div></div>
+        <div class="type-card" onclick="startQuiz('writing')"><div class="type-icon">🖊️</div><div class="type-name">写作</div><div class="type-desc">书写表达</div></div>
+        <div class="type-card" onclick="startQuiz('listening')"><div class="type-icon">🎧</div><div class="type-name">听力</div><div class="type-desc">听懂对话</div></div>
+        <div class="type-card" onclick="startQuiz('speaking')"><div class="type-icon">🗣️</div><div class="type-name">口语</div><div class="type-desc">开口表达</div></div>
+        <div class="type-card type-all" onclick="startQuiz('all')"><div class="type-icon">🌟</div><div class="type-name">综合测试</div><div class="type-desc">全题型混合</div></div>
+      </div>
+    </section>
+    <section class="history-section">
+      <h3>📅 最近测试记录</h3>
+      <div id="sessionHistory" class="history-list">加载中...</div>
+    </section>
+  </main>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

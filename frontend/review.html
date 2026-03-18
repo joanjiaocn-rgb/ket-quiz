@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>错题本 📒</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="review-page">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <button class="btn-sm" onclick="location.href='dashboard.html'">← 返回</button>
+      <span>📒 我的错题本</span>
+    </div>
+  </header>
+  <main class="review-main">
+    <div id="wrongList" class="wrong-list">
+      <div class="loading-anim">🌀 加载中...</div>
+    </div>
+    <div id="emptyMsg" class="empty-msg hidden">
+      <div class="empty-icon">🎉</div>
+      <p>太棒了！暂时没有错题～</p>
+    </div>
+  </main>
+  <script src="js/review.js"></script>
+</body>
+</html>
