@@ -36,7 +36,7 @@ function renderQuestion() {
   updateProgress();
   const optLabels = ['A', 'B', 'C', 'D'];
   const optionsHtml = q.options ? q.options.map((opt, i) => `
-    <button class="option-btn" onclick="selectAnswer(this, ${JSON.stringify(opt)}, ${q.id})">
+    <button class="option-btn" data-index="${i}" onclick="selectAnswer(this, ${i}, ${q.id})">
       <span class="opt-label">${optLabels[i]}</span>
       <span>${opt}</span>
     </button>`).join('') : '<p style="color:#9CA3AF">此题型暂无选项</p>';
@@ -54,8 +54,9 @@ function renderQuestion() {
     </div>`;
 }
 
-function selectAnswer(btn, selected, qId) {
+function selectAnswer(btn, selectedIndex, qId) {
   const q = questions[current];
+  const selected = q.options[selectedIndex];
   const timeSpent = Math.floor((Date.now() - questionStart) / 1000);
   const isCorrect = selected === q.answer;
   if (isCorrect) { score++; document.getElementById('currentScore').textContent = score; }
