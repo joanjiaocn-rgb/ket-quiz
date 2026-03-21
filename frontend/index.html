@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KET冲刺小站 🌟</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google SDK 加载完成后调用 initGoogle -->
+  <script src="https://accounts.google.com/gsi/client" onload="initGoogle()" async defer></script>
   <style>
     .divider {
       display: flex;
@@ -21,30 +22,11 @@
       height: 1px;
       background: #e0e0e0;
     }
-    .google-btn {
+    #googleBtnWrapper {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 10px;
-      width: 100%;
-      padding: 11px 16px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 10px;
-      background: #fff;
-      color: #333;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: box-shadow 0.2s, border-color 0.2s;
       margin-bottom: 4px;
-    }
-    .google-btn:hover {
-      box-shadow: 0 2px 8px rgba(66,133,244,0.15);
-      border-color: #4285f4;
-    }
-    .google-btn img {
-      width: 20px;
-      height: 20px;
+      min-height: 44px;
     }
   </style>
 </head>
@@ -56,11 +38,8 @@
       <p>一起备考，轻松拿证！</p>
     </div>
 
-    <!-- Google 登录按钮 -->
-    <button class="google-btn" id="googleLoginBtn">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-      使用 Google 账号登录
-    </button>
+    <!-- Google 官方登录按钮渲染容器 -->
+    <div id="googleBtnWrapper"></div>
 
     <div class="divider">或使用账号密码</div>
 

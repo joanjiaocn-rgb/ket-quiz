@@ -36,29 +36,28 @@ async function handleGoogleCredential(response) {
   }
 }
 
-// 初始化 Google Identity Services
-window.addEventListener('load', function () {
-  if (typeof google !== 'undefined') {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleCredential,
-      auto_select: false,
-    });
-  }
+// 等 Google SDK 加载完成后初始化
+function initGoogle() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true,
+  });
 
-  // 点击 Google 登录按钮时弹出选择账号
-  const googleBtn = document.getElementById('googleLoginBtn');
-  if (googleBtn) {
-    googleBtn.addEventListener('click', function () {
-      if (typeof google !== 'undefined') {
-        google.accounts.id.prompt();
-      } else {
-        document.getElementById('authMsg').textContent = 'Google 服务加载中，请稍候重试';
-        document.getElementById('authMsg').className = 'msg error';
-      }
-    });
-  }
-});
+  // 把官方 Google 按钮渲染到 #googleBtnWrapper
+  google.accounts.id.renderButton(
+    document.getElementById('googleBtnWrapper'),
+    {
+      theme: 'outline',
+      size: 'large',
+      width: '100%',
+      text: 'signin_with',
+      locale: 'zh-CN',
+      shape: 'rectangular',
+    }
+  );
+}
 
 // 普通登录
 document.getElementById('loginForm').addEventListener('submit', async e => {
