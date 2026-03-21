@@ -1,6 +1,6 @@
 // JWT & helpers inlined for Cloudflare Pages Functions
 const SECRET = 'ket_quiz_secret_2024';
-const GOOGLE_CLIENT_ID = '301385159441-rsuga1t2r7l432q25juvu0tkr4in2mfm.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '419114478696-9arvipkrsbrk1kkpvdlben30a7akv23s.apps.googleusercontent.com';
 
 function base64url(str) {
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');

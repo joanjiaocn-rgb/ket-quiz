@@ -1,5 +1,5 @@
 const API = '';
-const GOOGLE_CLIENT_ID = '301385159441-rsuga1t2r7l432q25juvu0tkr4in2mfm.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '419114478696-9arvipkrsbrk1kkpvdlben30a7akv23s.apps.googleusercontent.com';
 const REDIRECT_URI = location.origin + '/';
 
 function switchTab(tab) {
