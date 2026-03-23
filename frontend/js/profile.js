@@ -1,12 +1,12 @@
 const API_BASE = location.origin + '/api';
-let token = localStorage.getItem('ket_token');
+let token = localStorage.getItem('token');
 let currentUser = null;
 
 if (!token) location.href = 'index.html';
 
 function logout() {
-  localStorage.removeItem('ket_token');
-  localStorage.removeItem('ket_user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
   location.href = 'index.html';
 }
 
@@ -174,8 +174,8 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
 
 // 初始化
 async function init() {
-  const user = JSON.parse(localStorage.getItem('ket_user') || '{}');
-  document.getElementById('welcomeUser').textContent = `👤 ${user.username || ''}`;
+  const username = localStorage.getItem('username') || '';
+  document.getElementById('welcomeUser').textContent = `👤 ${username}`;
 
   await Promise.all([
     loadProfile(),
