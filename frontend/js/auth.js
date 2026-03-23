@@ -1,11 +1,7 @@
 const API = '';
 const GOOGLE_CLIENT_ID = '419114478696-9arvipkrsbrk1kkpvdlben30a7akv23s.apps.googleusercontent.com';
-const REDIRECT_URI = 'https://ket-quiz.pages.dev/';
-
-// 如果不在主域名，先跳过去（避免 redirect_uri_mismatch）
-if (location.origin !== 'https://ket-quiz.pages.dev' && !window.location.hash) {
-  window.location.href = 'https://ket-quiz.pages.dev/';
-}
+// 动态获取当前域名，不再硬编码，适配任意部署环境
+const REDIRECT_URI = location.origin + '/';
 
 // ===== 优先处理 Google 回调（页面加载就检查 hash）=====
 (async function () {

@@ -35,8 +35,23 @@ function renderQuestion() {
   questionStart = Date.now();
   updateProgress();
   const optLabels = ['A', 'B', 'C', 'D'];
+
+  // 听力题：有 audio_url 时显示播放器，选项初始禁用，播放后解锁
+  const audioHtml = q.audio_url ? `
+    <div class="audio-player-wrap">
+      <audio id="audioPlayer" controls controlsList="nodownload"
+        style="width:100%;margin:12px 0;border-radius:8px;">
+        <source src="${q.audio_url}" type="audio/mpeg">
+      </audio>
+      <p id="audioHint" style="color:#F59E0B;font-size:0.85em;margin:0 0 8px">
+        🔊 请先播放音频，再选择答案
+      </p>
+    </div>` : '';
+
+  const optionsDisabled = q.audio_url ? 'disabled' : '';
   const optionsHtml = q.options ? q.options.map((opt, i) => `
-    <button class="option-btn" data-index="${i}" onclick="selectAnswer(this, ${i}, ${q.id})">
+    <button class="option-btn" data-index="${i}" ${optionsDisabled}
+      onclick="selectAnswer(this, ${i}, ${q.id})">
       <span class="opt-label">${optLabels[i]}</span>
       <span>${opt}</span>
     </button>`).join('') : '<p style="color:#9CA3AF">此题型暂无选项</p>';
@@ -44,14 +59,25 @@ function renderQuestion() {
   document.getElementById('quizArea').innerHTML = `
     <div class="question-num">第 ${current + 1} 题 / 共 ${questions.length} 题</div>
     <div class="question-type-badge">${typeMap[q.type] || q.type}</div>
+    ${audioHtml}
     <div class="question-text">${q.question}</div>
-    <div class="options-grid">${optionsHtml}</div>
+    <div class="options-grid" id="optionsGrid">${optionsHtml}</div>
     <div id="expBox"></div>
     <div class="next-btn-wrap" id="nextWrap" style="display:none">
       <button class="btn-primary" onclick="nextQuestion()">
         ${current + 1 >= questions.length ? '查看结果 🎉' : '下一题 →'}
       </button>
     </div>`;
+
+  // 监听音频播放，解锁选项
+  if (q.audio_url) {
+    const audio = document.getElementById('audioPlayer');
+    audio.addEventListener('play', () => {
+      document.querySelectorAll('.option-btn').forEach(b => b.disabled = false);
+      const hint = document.getElementById('audioHint');
+      if (hint) hint.textContent = '🎧 正在播放，请仔细听...';
+    });
+  }
 }
 
 function selectAnswer(btn, selectedIndex, qId) {
