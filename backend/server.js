@@ -9,6 +9,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/user', require('./routes/user'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/progress', require('./routes/progress'));
 

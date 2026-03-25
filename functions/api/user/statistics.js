@@ -1,4 +1,4 @@
-// 用户学习统计 API
+// 用户学习统计 API - 从 attempts 表实时计算
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../../_utils.js';
 
 export async function onRequestOptions() { return corsResp(); }
@@ -16,19 +16,65 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  // 获取统计数据
-  let stats = await env.DB.prepare('SELECT * FROM user_statistics WHERE user_id = ?').bind(payload.id).first();
+  // 从 attempts 表获取统计数据
+  const totalResult = await env.DB.prepare(
+    'SELECT COUNT(*) as total FROM attempts WHERE user_id = ?'
+  ).bind(payload.id).first();
 
-  // 如果没有统计数据，创建一个
-  if (!stats) {
-    await env.DB.prepare('INSERT INTO user_statistics (user_id) VALUES (?)').bind(payload.id).run();
-    stats = await env.DB.prepare('SELECT * FROM user_statistics WHERE user_id = ?').bind(payload.id).first();
+  const correctResult = await env.DB.prepare(
+    'SELECT COUNT(*) as correct FROM attempts WHERE user_id = ? AND is_correct = 1'
+  ).bind(payload.id).first();
+
+  const totalAnswered = totalResult?.total || 0;
+  const correctAnswers = correctResult?.correct || 0;
+  const accuracy = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+
+  // 从 sessions 表获取会话数
+  const sessionsResult = await env.DB.prepare(
+    'SELECT COUNT(*) as total FROM sessions WHERE user_id = ?'
+  ).bind(payload.id).first();
+
+  const totalSessions = sessionsResult?.total || 0;
+
+  // 计算连续学习天数
+  const lastStudyDate = await env.DB.prepare(
+    "SELECT DATE(attempted_at) as date FROM attempts WHERE user_id = ? ORDER BY attempted_at DESC LIMIT 1"
+  ).bind(payload.id).first();
+
+  let streakDays = 0;
+  if (lastStudyDate?.date) {
+    const today = new Date();
+    const lastDate = new Date(lastStudyDate.date);
+    const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 1) {
+      // 如果是今天或昨天，计算连续天数
+      streakDays = 1;
+      let checkDate = new Date(lastDate);
+
+      while (true) {
+        checkDate.setDate(checkDate.getDate() - 1);
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const hasData = await env.DB.prepare(
+          `SELECT COUNT(*) as c FROM attempts
+           WHERE user_id = ? AND DATE(attempted_at) = ?`
+        ).bind(payload.id, dateStr).first();
+
+        if (hasData?.c > 0) {
+          streakDays++;
+        } else {
+          break;
+        }
+      }
+    }
   }
 
-  // 计算正确率
-  const accuracy = stats.total_questions_answered > 0
-    ? Math.round((stats.correct_answers / stats.total_questions_answered) * 100)
-    : 0;
+  // 计算总学习时间（秒）
+  const studyTimeResult = await env.DB.prepare(
+    'SELECT SUM(time_spent) as total_time FROM attempts WHERE user_id = ?'
+  ).bind(payload.id).first();
+
+  const totalStudyTime = studyTimeResult?.total_time || 0;
 
   // 获取最近的答题记录
   const recentAttempts = await env.DB.prepare(`
@@ -52,19 +98,15 @@ export async function onRequestGet({ request, env }) {
     GROUP BY q.type
   `).bind(payload.id).all();
 
-  // 获取最近的练习 session
-  const recentSessions = await env.DB.prepare(`
-    SELECT * FROM sessions
-    WHERE user_id = ?
-    ORDER BY completed_at DESC
-    LIMIT 5
-  `).bind(payload.id).all();
-
   return jsonResp({
-    ...stats,
-    accuracy,
+    total_questions_answered: totalAnswered,
+    correct_answers: correctAnswers,
+    accuracy: accuracy,
+    total_sessions: totalSessions,
+    streak_days: streakDays,
+    total_study_time: totalStudyTime,
+    last_study_date: lastStudyDate?.date || null,
     recentAttempts: recentAttempts.results || [],
-    typeStats: typeStats.results || [],
-    recentSessions: recentSessions.results || []
+    typeStats: typeStats.results || []
   });
 }
