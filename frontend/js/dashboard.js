@@ -16,7 +16,60 @@ document.getElementById('userName').textContent = username;
 document.getElementById('welcomeUser').textContent = `👋 ${username}`;
 
 function logout() { localStorage.clear(); location.href = 'index.html'; }
-function startQuiz(type) { location.href = `quiz.html?type=${type}`; }
+
+async function checkSubscription() {
+  try {
+    const res = await fetch(`${API}/api/user/subscription`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (data.isPro) {
+      // Pro 用户：隐藏升级按钮，解锁所有题型
+      document.getElementById('proBtn').style.display = 'none';
+      document.getElementById('proBanner').style.display = 'none';
+      document.getElementById('dailyQuota').style.display = 'none';
+      document.querySelectorAll('.type-card.locked').forEach(card => {
+        card.classList.remove('locked');
+        const lockDiv = card.querySelector('.pro-lock');
+        if (lockDiv) lockDiv.remove();
+        // 恢复点击事件
+        const type = card.id.replace('Card', '');
+        card.onclick = () => startQuiz(type);
+      });
+    } else {
+      // 免费用户：显示升级按钮，锁定付费题型
+      document.getElementById('proBtn').style.display = 'inline-block';
+      document.getElementById('proBanner').style.display = 'block';
+      document.getElementById('dailyQuota').style.display = 'block';
+      document.getElementById('todayCount').textContent = data.todayQuestions || 0;
+
+      // 如果今日已达20题，禁用单词和语法
+      if (data.todayQuestions >= 20) {
+        document.querySelectorAll('.type-card:not(.locked)').forEach(card => {
+          card.style.opacity = '0.5';
+          card.style.pointerEvents = 'none';
+        });
+      }
+    }
+  } catch (e) {
+    console.error('检查订阅失败:', e);
+  }
+}
+
+function checkPro(type) {
+  alert(`🔒 ${typeMap[type]?.label || type} 是 Pro 专属功能\n\n升级 Pro 解锁所有题型和无限练习！`);
+  location.href = 'pricing.html';
+}
+
+function closeProBanner() {
+  document.getElementById('proBanner').style.display = 'none';
+  localStorage.setItem('proBannerClosed', Date.now());
+}
+
+function startQuiz(type) {
+  location.href = `quiz.html?type=${type}`;
+}
 
 async function loadStats() {
   try {
@@ -49,4 +102,18 @@ async function loadStats() {
   } catch (e) { console.error(e); }
 }
 
-loadStats();
+// 初始化
+async function init() {
+  // 检查 Pro 横幅是否已关闭
+  const bannerClosed = localStorage.getItem('proBannerClosed');
+  if (bannerClosed && Date.now() - parseInt(bannerClosed) < 24 * 60 * 60 * 1000) {
+    document.getElementById('proBanner').style.display = 'none';
+  }
+
+  await Promise.all([
+    checkSubscription(),
+    loadStats()
+  ]);
+}
+
+init();

@@ -13,14 +13,28 @@
     </div>
     <div class="top-bar-right">
       <span id="welcomeUser">👋 同学</span>
+      <button class="btn-sm pro-btn" id="proBtn" onclick="location.href='pricing.html'" style="display:none">🚀 升级 Pro</button>
       <button class="btn-sm" onclick="location.href='profile.html'">👤 个人中心</button>
       <button class="btn-sm" onclick="location.href='review.html'">📒 错题本</button>
       <button class="btn-sm" onclick="logout()">退出</button>
     </div>
   </header>
   <main class="dashboard-main">
+    <!-- Pro 升级横幅 -->
+    <div class="pro-banner" id="proBanner" style="display:none">
+      <div class="pro-banner-content">
+        <span class="pro-icon">🚀</span>
+        <span class="pro-text">升级 Pro，解锁无限练习 + 所有题型！</span>
+        <button class="btn-primary btn-sm" onclick="location.href='pricing.html'">立即升级</button>
+        <button class="btn-close" onclick="closeProBanner()">✕</button>
+      </div>
+    </div>
+
     <div class="welcome-banner">
       <h2>你好，<span id="userName"></span>！今天也要加油哦 💪</h2>
+      <div class="daily-quota" id="dailyQuota" style="display:none">
+        <span>今日答题：<strong id="todayCount">0</strong>/20</span>
+      </div>
     </div>
     <section class="stats-section">
       <h3>📊 我的进度</h3>
@@ -28,13 +42,13 @@
     </section>
     <section class="quiz-section">
       <h3>🎯 选择题型开始练习</h3>
-      <div class="type-grid">
+      <div class="type-grid" id="typeGrid">
         <div class="type-card" onclick="startQuiz('vocabulary')"><div class="type-icon">📚</div><div class="type-name">单词</div><div class="type-desc">词汇积累</div></div>
         <div class="type-card" onclick="startQuiz('grammar')"><div class="type-icon">✏️</div><div class="type-name">语法</div><div class="type-desc">句型结构</div></div>
-        <div class="type-card" onclick="startQuiz('reading')"><div class="type-icon">📖</div><div class="type-name">阅读</div><div class="type-desc">理解文章</div></div>
-        <div class="type-card" onclick="startQuiz('writing')"><div class="type-icon">🖊️</div><div class="type-name">写作</div><div class="type-desc">书写表达</div></div>
-        <div class="type-card" onclick="startQuiz('listening')"><div class="type-icon">🎧</div><div class="type-name">听力</div><div class="type-desc">听懂对话</div></div>
-        <div class="type-card" onclick="startQuiz('speaking')"><div class="type-icon">🗣️</div><div class="type-name">口语</div><div class="type-desc">开口表达</div></div>
+        <div class="type-card locked" id="readingCard" onclick="checkPro('reading')"><div class="type-icon">📖</div><div class="type-name">阅读</div><div class="type-desc">理解文章</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="writingCard" onclick="checkPro('writing')"><div class="type-icon">🖊️</div><div class="type-name">写作</div><div class="type-desc">书写表达</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="listeningCard" onclick="checkPro('listening')"><div class="type-icon">🎧</div><div class="type-name">听力</div><div class="type-desc">听懂对话</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="speakingCard" onclick="checkPro('speaking')"><div class="type-icon">🗣️</div><div class="type-name">口语</div><div class="type-desc">开口表达</div><div class="pro-lock">🔒 Pro</div></div>
         <div class="type-card type-all" onclick="startQuiz('all')"><div class="type-icon">🌟</div><div class="type-name">综合测试</div><div class="type-desc">全题型混合</div></div>
       </div>
     </section>
