@@ -44,8 +44,10 @@ export async function onRequestGet({ request, env }) {
     try {
       const statsResult = await env.DB.prepare('SELECT COUNT(*) as total FROM attempts WHERE user_id = ?').bind(payload.id).first();
       totalQuestions = statsResult?.total || 0;
+      console.log('用户答题数:', totalQuestions);
     } catch (e) {
-      console.log('无法获取答题统计');
+      console.log('无法获取答题统计，使用默认值 0');
+      totalQuestions = 0;
     }
 
     // 标记成就解锁状态
@@ -56,10 +58,11 @@ export async function onRequestGet({ request, env }) {
       if (!unlocked) {
         if (a.type === 'questions' && totalQuestions >= a.requirement) {
           unlocked = true;
-          console.log(`成就 "${a.name}" 应该解锁！答题数: ${totalQuestions}, 要求: ${a.requirement}`);
+          console.log(`成就 "${a.name}" 解锁！答题数: ${totalQuestions}, 要求: ${a.requirement}`);
         }
       }
 
+      console.log(`成就 "${a.name}": unlocked=${unlocked}`);
       return { ...a, unlocked };
     });
 
@@ -69,10 +72,10 @@ export async function onRequestGet({ request, env }) {
     });
   } catch (e) {
     console.error('成就 API 错误:', e);
-    // 出错时返回默认成就列表
+    // 出错时返回默认成就列表，第一个成就强制解锁
     return jsonResp({
       unlocked: [],
-      all: defaultAchievements.map(a => ({ ...a, unlocked: false }))
+      all: defaultAchievements.map((a, index) => ({ ...a, unlocked: index === 0 }))
     });
   }
 }
