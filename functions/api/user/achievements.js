@@ -56,6 +56,7 @@ export async function onRequestGet({ request, env }) {
       if (!unlocked) {
         if (a.type === 'questions' && totalQuestions >= a.requirement) {
           unlocked = true;
+          console.log(`成就 "${a.name}" 应该解锁！答题数: ${totalQuestions}, 要求: ${a.requirement}`);
         }
       }
 
