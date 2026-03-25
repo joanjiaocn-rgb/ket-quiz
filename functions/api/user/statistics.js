@@ -16,14 +16,15 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  // 一次性获取所有统计数据（减少数据库查询次数）
-  const statsResult = await env.DB.prepare(`
-    SELECT 
-      COUNT(*) as total,
-      SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
-      SUM(time_spent) as total_time
-    FROM attempts WHERE user_id = ?
-  `).bind(payload.id).first();
+  try {
+    // 一次性获取所有统计数据（减少数据库查询次数）
+    const statsResult = await env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
+        SUM(time_spent) as total_time
+      FROM attempts WHERE user_id = ?
+    `).bind(payload.id).first().catch(() => ({ total: 0, correct: 0, total_time: 0 }));
 
   const totalAnswered = statsResult?.total || 0;
   const correctAnswers = statsResult?.correct || 0;
@@ -33,7 +34,7 @@ export async function onRequestGet({ request, env }) {
   // 获取会话数
   const sessionsResult = await env.DB.prepare(
     'SELECT COUNT(*) as total FROM sessions WHERE user_id = ?'
-  ).bind(payload.id).first();
+  ).bind(payload.id).first().catch(() => ({ total: 0 }));
 
   const totalSessions = sessionsResult?.total || 0;
 
@@ -42,7 +43,7 @@ export async function onRequestGet({ request, env }) {
     SELECT DISTINCT DATE(attempted_at) as date
     FROM attempts WHERE user_id = ?
     ORDER BY date DESC
-  `).bind(payload.id).all();
+  `).bind(payload.id).all().catch(() => ({ results: [] }));
 
   const studyDates = studyDatesResult?.results?.map(r => r.date) || [];
   const lastStudyDate = studyDates[0] || null;
@@ -79,7 +80,7 @@ export async function onRequestGet({ request, env }) {
     WHERE a.user_id = ?
     ORDER BY a.attempted_at DESC
     LIMIT 10
-  `).bind(payload.id).all();
+  `).bind(payload.id).all().catch(() => ({ results: [] }));
 
   // 获取各题型的正确率
   const typeStats = await env.DB.prepare(`
@@ -91,7 +92,7 @@ export async function onRequestGet({ request, env }) {
     JOIN questions q ON a.question_id = q.id
     WHERE a.user_id = ?
     GROUP BY q.type
-  `).bind(payload.id).all();
+  `).bind(payload.id).all().catch(() => ({ results: [] }));
 
   return jsonResp({
     total_questions_answered: totalAnswered,
@@ -104,4 +105,19 @@ export async function onRequestGet({ request, env }) {
     recentAttempts: recentAttempts.results || [],
     typeStats: typeStats.results || []
   });
+  } catch (e) {
+    console.error('统计 API 错误:', e);
+    // 如果出错，返回默认值
+    return jsonResp({
+      total_questions_answered: 0,
+      correct_answers: 0,
+      accuracy: 0,
+      total_sessions: 0,
+      streak_days: 0,
+      total_study_time: 0,
+      last_study_date: null,
+      recentAttempts: [],
+      typeStats: []
+    });
+  }
 }

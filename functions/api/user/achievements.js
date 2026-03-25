@@ -16,36 +16,49 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  // 优化：一次性获取所有成就和用户解锁情况（减少查询次数）
-  const [allAchievements, userAchievements] = await Promise.all([
-    env.DB.prepare('SELECT * FROM achievements ORDER BY id').all(),
-    env.DB.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').bind(payload.id).all()
-  ]);
+  try {
+    // 优化：一次性获取所有成就和用户解锁情况（减少查询次数）
+    const [allAchievements, userAchievements] = await Promise.all([
+      env.DB.prepare('SELECT * FROM achievements ORDER BY id').all().catch(() => ({ results: [] })),
+      env.DB.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').bind(payload.id).all().catch(() => ({ results: [] }))
+    ]);
 
-  const unlockedIds = new Set((userAchievements.results || []).map(ua => ua.achievement_id));
+    const unlockedIds = new Set((userAchievements.results || []).map(ua => ua.achievement_id));
 
-  const achievementsWithStatus = (allAchievements.results || []).map(a => ({
-    ...a,
-    unlocked: unlockedIds.has(a.id)
-  }));
+    const achievementsWithStatus = (allAchievements.results || []).map(a => ({
+      ...a,
+      unlocked: unlockedIds.has(a.id)
+    }));
 
-  // 获取用户已解锁的成就详情（按需加载）
-  const unlockedAchievements = [];
-  if (unlockedIds.size > 0) {
-    const unlockedResult = await env.DB.prepare(`
-      SELECT ua.*, a.name, a.description, a.icon, a.type, a.requirement, a.points_reward
-      FROM user_achievements ua
-      JOIN achievements a ON ua.achievement_id = a.id
-      WHERE ua.user_id = ?
-      ORDER BY ua.unlocked_at DESC
-    `).bind(payload.id).all();
-    unlockedAchievements.push(...(unlockedResult.results || []));
+    // 获取用户已解锁的成就详情（按需加载）
+    const unlockedAchievements = [];
+    if (unlockedIds.size > 0) {
+      try {
+        const unlockedResult = await env.DB.prepare(`
+          SELECT ua.*, a.name, a.description, a.icon, a.type, a.requirement, a.points_reward
+          FROM user_achievements ua
+          JOIN achievements a ON ua.achievement_id = a.id
+          WHERE ua.user_id = ?
+          ORDER BY ua.unlocked_at DESC
+        `).bind(payload.id).all();
+        unlockedAchievements.push(...(unlockedResult.results || []));
+      } catch (e) {
+        console.error('获取已解锁成就失败:', e);
+      }
+    }
+
+    return jsonResp({
+      unlocked: unlockedAchievements,
+      all: achievementsWithStatus
+    });
+  } catch (e) {
+    console.error('成就 API 错误:', e);
+    // 如果表不存在，返回空成就列表
+    return jsonResp({
+      unlocked: [],
+      all: []
+    });
   }
-
-  return jsonResp({
-    unlocked: unlockedAchievements,
-    all: achievementsWithStatus
-  });
 }
 
 export async function onRequestPost({ request, env }) {
