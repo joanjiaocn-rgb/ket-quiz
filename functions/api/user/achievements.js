@@ -27,55 +27,13 @@ export async function onRequestGet({ request, env }) {
     { id: 7, name: '全能选手', description: '所有题型都练习过', icon: '🌟', type: 'all_types', requirement: 1, points_reward: 300 }
   ];
 
-  try {
-    // 先尝试查询用户已解锁的成就
-    let userAchievements = [];
-    try {
-      const result = await env.DB.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').bind(payload.id).all();
-      userAchievements = result.results || [];
-    } catch (e) {
-      console.log('用户成就表不存在，使用空列表');
-    }
+  // 直接标记第一个成就为已解锁（初学者）
+  const achievementsWithStatus = defaultAchievements.map((a, index) => {
+    return { ...a, unlocked: index === 0 };
+  });
 
-    const unlockedIds = new Set(userAchievements.map(ua => ua.achievement_id));
-
-    // 检查用户是否达成任何成就（基于答题数）
-    let totalQuestions = 0;
-    try {
-      const statsResult = await env.DB.prepare('SELECT COUNT(*) as total FROM attempts WHERE user_id = ?').bind(payload.id).first();
-      totalQuestions = statsResult?.total || 0;
-      console.log('用户答题数:', totalQuestions);
-    } catch (e) {
-      console.log('无法获取答题统计，使用默认值 0');
-      totalQuestions = 0;
-    }
-
-    // 标记成就解锁状态
-    const achievementsWithStatus = defaultAchievements.map(a => {
-      let unlocked = unlockedIds.has(a.id);
-
-      // 如果还没解锁，检查是否应该解锁
-      if (!unlocked) {
-        if (a.type === 'questions' && totalQuestions >= a.requirement) {
-          unlocked = true;
-          console.log(`成就 "${a.name}" 解锁！答题数: ${totalQuestions}, 要求: ${a.requirement}`);
-        }
-      }
-
-      console.log(`成就 "${a.name}": unlocked=${unlocked}`);
-      return { ...a, unlocked };
-    });
-
-    return jsonResp({
-      unlocked: [],
-      all: achievementsWithStatus
-    });
-  } catch (e) {
-    console.error('成就 API 错误:', e);
-    // 出错时返回默认成就列表，第一个成就强制解锁
-    return jsonResp({
-      unlocked: [],
-      all: defaultAchievements.map((a, index) => ({ ...a, unlocked: index === 0 }))
-    });
-  }
+  return jsonResp({
+    unlocked: [],
+    all: achievementsWithStatus
+  });
 }
