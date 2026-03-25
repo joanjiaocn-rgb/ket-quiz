@@ -1,4 +1,4 @@
-// 用户学习统计 API - 从 attempts 表实时计算
+// 用户学习统计 API - 从 attempts 表实时计算（优化版）
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../../_utils.js';
 
 export async function onRequestOptions() { return corsResp(); }
@@ -16,65 +16,60 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  // 从 attempts 表获取统计数据
-  const totalResult = await env.DB.prepare(
-    'SELECT COUNT(*) as total FROM attempts WHERE user_id = ?'
-  ).bind(payload.id).first();
+  // 一次性获取所有统计数据（减少数据库查询次数）
+  const statsResult = await env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total,
+      SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
+      SUM(time_spent) as total_time
+    FROM attempts WHERE user_id = ?
+  `).bind(payload.id).first();
 
-  const correctResult = await env.DB.prepare(
-    'SELECT COUNT(*) as correct FROM attempts WHERE user_id = ? AND is_correct = 1'
-  ).bind(payload.id).first();
-
-  const totalAnswered = totalResult?.total || 0;
-  const correctAnswers = correctResult?.correct || 0;
+  const totalAnswered = statsResult?.total || 0;
+  const correctAnswers = statsResult?.correct || 0;
   const accuracy = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+  const totalStudyTime = statsResult?.total_time || 0;
 
-  // 从 sessions 表获取会话数
+  // 获取会话数
   const sessionsResult = await env.DB.prepare(
     'SELECT COUNT(*) as total FROM sessions WHERE user_id = ?'
   ).bind(payload.id).first();
 
   const totalSessions = sessionsResult?.total || 0;
 
-  // 计算连续学习天数
-  const lastStudyDate = await env.DB.prepare(
-    "SELECT DATE(attempted_at) as date FROM attempts WHERE user_id = ? ORDER BY attempted_at DESC LIMIT 1"
-  ).bind(payload.id).first();
+  // 优化：一次性获取所有有记录的日期，然后计算连续天数
+  const studyDatesResult = await env.DB.prepare(`
+    SELECT DISTINCT DATE(attempted_at) as date
+    FROM attempts WHERE user_id = ?
+    ORDER BY date DESC
+  `).bind(payload.id).all();
+
+  const studyDates = studyDatesResult?.results?.map(r => r.date) || [];
+  const lastStudyDate = studyDates[0] || null;
 
   let streakDays = 0;
-  if (lastStudyDate?.date) {
+  if (studyDates.length > 0) {
     const today = new Date();
-    const lastDate = new Date(lastStudyDate.date);
+    const lastDate = new Date(studyDates[0]);
     const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
 
     if (diffDays <= 1) {
-      // 如果是今天或昨天，计算连续天数
       streakDays = 1;
-      let checkDate = new Date(lastDate);
+      let prevDate = new Date(studyDates[0]);
 
-      while (true) {
-        checkDate.setDate(checkDate.getDate() - 1);
-        const dateStr = checkDate.toISOString().split('T')[0];
-        const hasData = await env.DB.prepare(
-          `SELECT COUNT(*) as c FROM attempts
-           WHERE user_id = ? AND DATE(attempted_at) = ?`
-        ).bind(payload.id, dateStr).first();
+      for (let i = 1; i < studyDates.length; i++) {
+        const currDate = new Date(studyDates[i]);
+        const dayDiff = Math.floor((prevDate - currDate) / (1000 * 60 * 60 * 24));
 
-        if (hasData?.c > 0) {
+        if (dayDiff === 1) {
           streakDays++;
+          prevDate = currDate;
         } else {
           break;
         }
       }
     }
   }
-
-  // 计算总学习时间（秒）
-  const studyTimeResult = await env.DB.prepare(
-    'SELECT SUM(time_spent) as total_time FROM attempts WHERE user_id = ?'
-  ).bind(payload.id).first();
-
-  const totalStudyTime = studyTimeResult?.total_time || 0;
 
   // 获取最近的答题记录
   const recentAttempts = await env.DB.prepare(`
@@ -105,7 +100,7 @@ export async function onRequestGet({ request, env }) {
     total_sessions: totalSessions,
     streak_days: streakDays,
     total_study_time: totalStudyTime,
-    last_study_date: lastStudyDate?.date || null,
+    last_study_date: lastStudyDate,
     recentAttempts: recentAttempts.results || [],
     typeStats: typeStats.results || []
   });
