@@ -19,8 +19,8 @@ export async function onRequestGet({ request, env }) {
   try {
     // 优化：并行获取所有数据（减少等待时间）
     const [user, profile, settings] = await Promise.all([
-      // 获取用户基本信息
-      env.DB.prepare('SELECT id, username, email, avatar, display_name, bio, level, total_points, is_pro, subscription_type, pro_expires_at, created_at FROM users WHERE id = ?').bind(payload.id).first().catch(() => null),
+      // 获取用户基本信息（只查询肯定存在的字段）
+      env.DB.prepare('SELECT id, username, email, avatar FROM users WHERE id = ?').bind(payload.id).first().catch(() => null),
       // 获取用户详细资料
       env.DB.prepare('SELECT * FROM user_profiles WHERE user_id = ?').bind(payload.id).first().catch(() => null),
       // 获取用户设置

@@ -54,6 +54,11 @@ function renderProfile(data) {
     console.error('用户数据不存在');
     document.getElementById('profileName').textContent = '用户';
   }
+  
+  // 无论如何，确保名字不会一直显示加载中
+  if (document.getElementById('profileName').textContent === '加载中...') {
+    document.getElementById('profileName').textContent = '用户';
+  }
 
   // 表单 - 添加安全检查
   try {
