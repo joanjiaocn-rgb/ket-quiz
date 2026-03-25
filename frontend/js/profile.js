@@ -23,6 +23,7 @@ async function loadProfile() {
     const res = await fetch(`${API_BASE}/user/profile`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
+    console.log('响应状态:', res.status);
     const data = await res.json();
     console.log('个人资料数据:', data);
     if (data.error) throw new Error(data.error);
@@ -30,6 +31,8 @@ async function loadProfile() {
     renderProfile(data);
   } catch (e) {
     console.error('加载个人资料失败:', e);
+    // 如果加载失败，显示默认值
+    document.getElementById('profileName').textContent = '用户';
   }
 }
 
@@ -49,6 +52,7 @@ function renderProfile(data) {
     document.getElementById('welcomeUser').textContent = `👤 ${user.username || ''}`;
   } else {
     console.error('用户数据不存在');
+    document.getElementById('profileName').textContent = '用户';
   }
 
   // 表单 - 添加安全检查
@@ -220,11 +224,18 @@ async function init() {
   `;
   document.getElementById('achievementList').innerHTML = '<div class="loading">加载中...</div>';
 
-  await Promise.all([
+  // 使用 allSettled 确保即使某个请求失败，其他请求也能继续
+  const results = await Promise.allSettled([
     loadProfile(),
     loadStatistics(),
     loadAchievements()
   ]);
+
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(`请求 ${index} 失败:`, result.reason);
+    }
+  });
 
   console.log('所有数据加载完成！');
 }
