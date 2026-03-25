@@ -79,20 +79,39 @@ export async function onRequest({ request, env, params }) {
   }
 
   if (request.method === 'GET' && action === 'stats') {
-    const types = ['vocabulary', 'grammar', 'reading', 'writing', 'listening', 'speaking'];
-    const stats = {};
-    for (const type of types) {
-      const total = await env.DB.prepare(
-        'SELECT COUNT(*) as c FROM attempts a JOIN questions q ON a.question_id=q.id WHERE a.user_id=? AND q.type=?'
-      ).bind(user.id, type).first();
-      const correct = await env.DB.prepare(
-        'SELECT COUNT(*) as c FROM attempts a JOIN questions q ON a.question_id=q.id WHERE a.user_id=? AND q.type=? AND a.is_correct=1'
-      ).bind(user.id, type).first();
-      stats[type] = { total: total?.c || 0, correct: correct?.c || 0 };
+    // 优化：一次性获取所有题型的统计（减少数据库查询次数）
+    const typeStats = await env.DB.prepare(`
+      SELECT
+        q.type,
+        COUNT(*) as total,
+        SUM(a.is_correct) as correct
+      FROM attempts a
+      JOIN questions q ON a.question_id = q.id
+      WHERE a.user_id = ?
+      GROUP BY q.type
+    `).bind(user.id).all();
+
+    // 初始化默认值
+    const stats = {
+      vocabulary: { total: 0, correct: 0 },
+      grammar: { total: 0, correct: 0 },
+      reading: { total: 0, correct: 0 },
+      writing: { total: 0, correct: 0 },
+      listening: { total: 0, correct: 0 },
+      speaking: { total: 0, correct: 0 }
+    };
+
+    // 填充查询结果
+    for (const row of (typeStats.results || [])) {
+      if (stats[row.type]) {
+        stats[row.type] = { total: row.total, correct: row.correct };
+      }
     }
+
     const sessions = await env.DB.prepare(
       'SELECT * FROM sessions WHERE user_id=? ORDER BY completed_at DESC LIMIT 10'
     ).bind(user.id).all();
+
     return jsonResp({ stats, sessions: sessions.results });
   }
 
