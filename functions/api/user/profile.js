@@ -1,4 +1,4 @@
-// 用户个人信息 API（优化版）
+// 用户个人信息 API
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../../_utils.js';
 
 export async function onRequestOptions() { return corsResp(); }
@@ -16,40 +16,25 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  try {
-    // 优化：并行获取所有数据（减少等待时间）
-    const [user, profile, settings] = await Promise.all([
-      // 获取用户基本信息（只查询肯定存在的字段）
-      env.DB.prepare('SELECT id, username, email, avatar FROM users WHERE id = ?').bind(payload.id).first().catch(() => null),
-      // 获取用户详细资料
-      env.DB.prepare('SELECT * FROM user_profiles WHERE user_id = ?').bind(payload.id).first().catch(() => null),
-      // 获取用户设置
-      env.DB.prepare('SELECT * FROM user_settings WHERE user_id = ?').bind(payload.id).first().catch(() => null)
-    ]);
+  // 获取用户基本信息（只查询原始表中肯定存在的字段）
+  const user = await env.DB.prepare('SELECT id, username, email, avatar FROM users WHERE id = ?').bind(payload.id).first();
+  if (!user) return jsonResp({ error: '用户不存在' }, 404);
 
-    if (!user) {
-      // 如果获取不到用户，至少返回一个基本的用户对象
-      return jsonResp({
-        user: { id: payload.id, username: '用户', level: 1, total_points: 0 },
-        profile: null,
-        settings: null
-      });
-    }
+  // 获取用户详细资料
+  const profile = await env.DB.prepare('SELECT * FROM user_profiles WHERE user_id = ?').bind(payload.id).first();
 
-    return jsonResp({
-      user,
-      profile: profile || null,
-      settings: settings || null
-    });
-  } catch (e) {
-    console.error('个人资料 API 错误:', e);
-    // 如果出错，返回默认值
-    return jsonResp({
-      user: { id: payload.id, username: '用户', level: 1, total_points: 0 },
-      profile: null,
-      settings: null
-    });
-  }
+  // 获取用户统计数据
+  const stats = await env.DB.prepare('SELECT * FROM user_statistics WHERE user_id = ?').bind(payload.id).first();
+
+  // 获取用户设置
+  const settings = await env.DB.prepare('SELECT * FROM user_settings WHERE user_id = ?').bind(payload.id).first();
+
+  return jsonResp({
+    user,
+    profile: profile || null,
+    statistics: stats || null,
+    settings: settings || null
+  });
 }
 
 export async function onRequestPut({ request, env }) {
