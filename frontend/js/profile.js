@@ -19,10 +19,12 @@ function switchTab(tab) {
 
 async function loadProfile() {
   try {
+    console.log('开始加载个人资料...');
     const res = await fetch(`${API_BASE}/user/profile`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
+    console.log('个人资料数据:', data);
     if (data.error) throw new Error(data.error);
     currentUser = data;
     renderProfile(data);
@@ -32,40 +34,55 @@ async function loadProfile() {
 }
 
 function renderProfile(data) {
+  console.log('渲染个人资料:', data);
   const { user, profile, settings } = data;
 
-  // 头部信息
-  if (user.avatar) {
-    document.getElementById('profileAvatar').innerHTML = `<img src="${user.avatar}" alt="avatar">`;
+  // 头部信息 - 添加安全检查
+  if (user) {
+    if (user.avatar) {
+      document.getElementById('profileAvatar').innerHTML = `<img src="${user.avatar}" alt="avatar">`;
+    }
+    document.getElementById('profileName').textContent = user.display_name || user.username || '用户';
+    document.getElementById('profileBio').textContent = user.bio || '';
+    document.getElementById('profileLevel').textContent = user.level || 1;
+    document.getElementById('profilePoints').textContent = user.total_points || 0;
+    document.getElementById('welcomeUser').textContent = `👤 ${user.username || ''}`;
+  } else {
+    console.error('用户数据不存在');
   }
-  document.getElementById('profileName').textContent = user.display_name || user.username;
-  document.getElementById('profileBio').textContent = user.bio || '';
-  document.getElementById('profileLevel').textContent = user.level || 1;
-  document.getElementById('profilePoints').textContent = user.total_points || 0;
-  document.getElementById('welcomeUser').textContent = `👤 ${user.username}`;
 
-  // 表单
-  if (user.display_name) document.getElementById('displayName').value = user.display_name;
-  if (user.bio) document.getElementById('bio').value = user.bio;
-  if (profile?.study_goal) document.getElementById('studyGoal').value = profile.study_goal;
-  if (profile?.target_score) document.getElementById('targetScore').value = profile.target_score;
+  // 表单 - 添加安全检查
+  try {
+    if (user?.display_name) document.getElementById('displayName').value = user.display_name;
+    if (user?.bio) document.getElementById('bio').value = user.bio;
+    if (profile?.study_goal) document.getElementById('studyGoal').value = profile.study_goal;
+    if (profile?.target_score) document.getElementById('targetScore').value = profile.target_score;
+  } catch (e) {
+    console.error('填充表单失败:', e);
+  }
 
-  // 设置
-  if (settings) {
-    document.getElementById('notificationsEnabled').checked = !!settings.notifications_enabled;
-    document.getElementById('soundEnabled').checked = !!settings.sound_enabled;
-    document.getElementById('autoPlayAudio').checked = !!settings.auto_play_audio;
-    if (settings.theme) document.getElementById('theme').value = settings.theme;
-    if (settings.language) document.getElementById('language').value = settings.language;
+  // 设置 - 添加安全检查
+  try {
+    if (settings) {
+      document.getElementById('notificationsEnabled').checked = !!settings.notifications_enabled;
+      document.getElementById('soundEnabled').checked = !!settings.sound_enabled;
+      document.getElementById('autoPlayAudio').checked = !!settings.auto_play_audio;
+      if (settings.theme) document.getElementById('theme').value = settings.theme;
+      if (settings.language) document.getElementById('language').value = settings.language;
+    }
+  } catch (e) {
+    console.error('填充设置失败:', e);
   }
 }
 
 async function loadStatistics() {
   try {
+    console.log('开始加载统计数据...');
     const res = await fetch(`${API_BASE}/user/statistics`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const stats = await res.json();
+    console.log('统计数据:', stats);
     if (stats.error) throw new Error(stats.error);
     renderStatistics(stats);
   } catch (e) {
@@ -74,6 +91,7 @@ async function loadStatistics() {
 }
 
 function renderStatistics(stats) {
+  console.log('渲染统计数据:', stats);
   document.getElementById('statsCards').innerHTML = `
     <div class="stat-card">
       <div class="number">${stats.total_questions_answered || 0}</div>
@@ -96,10 +114,12 @@ function renderStatistics(stats) {
 
 async function loadAchievements() {
   try {
+    console.log('开始加载成就...');
     const res = await fetch(`${API_BASE}/user/achievements`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
+    console.log('成就数据:', data);
     if (data.error) throw new Error(data.error);
     renderAchievements(data.all);
   } catch (e) {
@@ -108,12 +128,13 @@ async function loadAchievements() {
 }
 
 function renderAchievements(achievements) {
-  const html = achievements.map(a => `
+  console.log('渲染成就:', achievements);
+  const html = (achievements || []).map(a => `
     <div class="achievement-item ${a.unlocked ? '' : 'locked'}">
       <div class="achievement-icon">${a.icon || '🏅'}</div>
       <div class="achievement-info">
-        <h4>${a.name}</h4>
-        <p>${a.description}</p>
+        <h4>${a.name || '未知成就'}</h4>
+        <p>${a.description || ''}</p>
       </div>
     </div>
   `).join('');
@@ -174,6 +195,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
 
 // 初始化
 async function init() {
+  console.log('初始化个人中心页面...');
   const username = localStorage.getItem('username') || '';
   document.getElementById('welcomeUser').textContent = `👤 ${username}`;
 
@@ -203,6 +225,8 @@ async function init() {
     loadStatistics(),
     loadAchievements()
   ]);
+
+  console.log('所有数据加载完成！');
 }
 
 init();
