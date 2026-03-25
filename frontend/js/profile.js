@@ -208,6 +208,11 @@ async function init() {
   const username = localStorage.getItem('username') || '';
   document.getElementById('welcomeUser').textContent = `👤 ${username}`;
 
+  // 立即设置默认值，不要一直显示加载中
+  document.getElementById('profileName').textContent = username || '用户';
+  document.getElementById('profileLevel').textContent = '1';
+  document.getElementById('profilePoints').textContent = '0';
+
   // 显示初始加载状态
   document.getElementById('statsCards').innerHTML = `
     <div class="stat-card">
