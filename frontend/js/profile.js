@@ -177,6 +177,27 @@ async function init() {
   const username = localStorage.getItem('username') || '';
   document.getElementById('welcomeUser').textContent = `👤 ${username}`;
 
+  // 显示初始加载状态
+  document.getElementById('statsCards').innerHTML = `
+    <div class="stat-card">
+      <div class="number">-</div>
+      <div class="label">总答题数</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">-</div>
+      <div class="label">正确率</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">-</div>
+      <div class="label">练习场次</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">-</div>
+      <div class="label">连续学习</div>
+    </div>
+  `;
+  document.getElementById('achievementList').innerHTML = '<div class="loading">加载中...</div>';
+
   await Promise.all([
     loadProfile(),
     loadStatistics(),
