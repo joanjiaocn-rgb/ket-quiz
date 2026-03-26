@@ -114,9 +114,16 @@ export async function onRequestPost({ request, env }) {
     }
 
     const customId = purchaseUnit?.custom_id || '';
+    console.log('Custom ID from PayPal:', customId);
+    console.log('Current user ID from token:', payload.id);
+    
     const [userId, planId] = customId.split(':');
     
-    if (!userId || !planId || parseInt(userId) !== payload.id) {
+    console.log('Extracted userId:', userId, 'planId:', planId);
+    console.log('Comparison:', parseInt(userId), '!==', payload.id, '=', parseInt(userId) !== payload.id);
+    
+    if (!userId || !planId || parseInt(userId) !== parseInt(payload.id)) {
+      console.error('Order mismatch: userId from order:', userId, 'current user:', payload.id);
       return jsonResp({ error: '订单信息不匹配' }, 400);
     }
 
