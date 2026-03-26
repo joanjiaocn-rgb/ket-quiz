@@ -104,9 +104,11 @@ export async function onRequestPost({ request, env }) {
     }
 
     const captureData = await response.json();
-    console.log('PayPal capture data:', captureData);
+    console.log('PayPal capture data:', JSON.stringify(captureData, null, 2));
     
     const purchaseUnit = captureData.purchase_units?.[0];
+    console.log('Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
+    
     const capture = purchaseUnit?.payments?.captures?.[0];
     
     if (!capture || capture.status !== 'COMPLETED') {
@@ -115,6 +117,7 @@ export async function onRequestPost({ request, env }) {
 
     const customId = purchaseUnit?.custom_id || '';
     console.log('Custom ID from PayPal:', customId);
+    console.log('Custom ID type:', typeof customId);
     console.log('Current user ID from token:', payload.id);
     
     const [userId, planId] = customId.split(':');

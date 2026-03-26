@@ -99,6 +99,9 @@ export async function onRequestPost({ request, env }) {
   try {
     const accessToken = await getAccessToken();
     
+    const customIdValue = `${payload.id}:${planId}`;
+    console.log('Setting custom_id:', customIdValue);
+    
     const orderPayload = {
       intent: 'CAPTURE',
       purchase_units: [
@@ -108,7 +111,7 @@ export async function onRequestPost({ request, env }) {
             currency_code: plan.currency,
             value: plan.price.toFixed(2),
           },
-          custom_id: `${payload.id}:${planId}`,
+          custom_id: customIdValue,
         },
       ],
       // 移除 application_context，让 PayPal 使用回调方式
