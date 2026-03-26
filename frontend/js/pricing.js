@@ -77,10 +77,13 @@ async function renderPayPalButtons(containerId, planId) {
           console.log('Creating order for plan:', planId);
           const orderId = await createPayPalOrder(planId);
           console.log('Order created:', orderId);
+          if (!orderId) {
+            throw new Error('未能获取订单ID');
+          }
           return orderId;
         } catch (error) {
           console.error('Create order error:', error);
-          alert('创建订单失败: ' + error.message);
+          alert('创建订单失败: ' + (error.message || '未知错误'));
           throw error;
         }
       },
@@ -101,7 +104,13 @@ async function renderPayPalButtons(containerId, planId) {
 
       onError: (error) => {
         console.error('PayPal error:', error);
-        alert('支付出错，请重试');
+        let errorMsg = '支付出错，请重试';
+        if (typeof error === 'string') {
+          errorMsg = '支付出错: ' + error;
+        } else if (error && error.message) {
+          errorMsg = '支付出错: ' + error.message;
+        }
+        alert(errorMsg);
       },
 
       onCancel: (data) => {
