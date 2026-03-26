@@ -75,14 +75,22 @@ export async function onRequestPost({ request, env }) {
 
   let body;
   try {
-    body = await request.json();
-    console.log('Request body:', JSON.stringify(body));
+    // 尝试多种方式获取请求体
+    const text = await request.text();
+    console.log('Raw request body:', text);
+    
+    if (!text || text.trim() === '') {
+      return jsonResp({ error: '请求体为空' }, 400);
+    }
+    
+    body = JSON.parse(text);
+    console.log('Parsed request body:', JSON.stringify(body));
   } catch (e) {
     console.error('Failed to parse request body:', e);
-    return jsonResp({ error: '请求格式错误', received: await request.text() }, 400);
+    return jsonResp({ error: '请求格式错误' }, 400);
   }
 
-  const { orderId } = body;
+  const orderId = body.orderId || body.orderID;
   console.log('Extracted orderId:', orderId);
   
   if (!orderId) {
