@@ -125,9 +125,9 @@ export async function onRequestPost({ request, env }) {
     console.log('Extracted userId:', userId, 'planId:', planId);
     console.log('Comparison:', parseInt(userId), '!==', payload.id, '=', parseInt(userId) !== payload.id);
     
-    if (!userId || !planId) {
-      console.error('Missing userId or planId in custom_id:', customId);
-      return jsonResp({ error: '订单信息不完整' }, 400);
+    if (!planId) {
+      console.error('Missing planId in custom_id:', customId);
+      return jsonResp({ error: '订单信息不完整，请重试' }, 400);
     }
     
     // 检查用户ID是否匹配（如果不匹配只记录警告，不阻止支付）
