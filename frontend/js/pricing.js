@@ -21,7 +21,7 @@ async function loadPayPalSDK() {
 // 创建 PayPal 订单
 async function createPayPalOrder(planId) {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/paypal/create`, {
+  const response = await fetch(`${API_BASE}/paypal-create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ async function createPayPalOrder(planId) {
 // 捕获 PayPal 订单
 async function capturePayPalOrder(orderId) {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/paypal/capture`, {
+  const response = await fetch(`${API_BASE}/paypal-capture`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,6 +1,61 @@
 // PayPal 创建订单 API
-import { verifyJwt, json as jsonResp, cors as corsResp } from '../../_utils.js';
-import { PAYPAL_CONFIG, PLANS, getAccessToken } from './config.js';
+import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
+
+const PAYPAL_CONFIG = {
+  mode: 'sandbox',
+  clientId: 'Af7Scqb91NwnT2cofnPndwHYjqkImKSJGJGITLt8qlvxLdcvDw6tDctfk7xT1VH8jeKBAi1OjJeT411R',
+  clientSecret: 'EDBwT8xf200f54mN8orpRSWDQmY_HA3qFwPcy75kVUuiKbFTI38O6XvIZP0aTRiCjv8gh4dRR1bcQpLA',
+  apiBase: 'https://api-m.sandbox.paypal.com',
+};
+
+const PLANS = {
+  monthly: {
+    id: 'monthly',
+    name: 'Pro 月度',
+    price: 1.99,
+    currency: 'USD',
+    interval: 'MONTH',
+    cnyPrice: 9.9,
+  },
+  yearly: {
+    id: 'yearly',
+    name: 'Pro 年度',
+    price: 14.99,
+    currency: 'USD',
+    interval: 'YEAR',
+    cnyPrice: 99,
+  },
+  lifetime: {
+    id: 'lifetime',
+    name: '终身会员',
+    price: 39.99,
+    currency: 'USD',
+    interval: null,
+    cnyPrice: 299,
+  },
+};
+
+async function getAccessToken() {
+  const auth = Buffer.from(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`).toString('base64');
+  
+  const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${auth}`,
+    },
+    body: 'grant_type=client_credentials',
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('PayPal token error:', error);
+    throw new Error('Failed to get PayPal access token');
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
 
 export async function onRequestOptions() { return corsResp(); }
 
@@ -32,9 +87,8 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const accessToken = await getAccessToken(env);
+    const accessToken = await getAccessToken();
     
-    // 构建 PayPal 订单
     const orderPayload = {
       intent: 'CAPTURE',
       purchase_units: [
@@ -44,7 +98,7 @@ export async function onRequestPost({ request, env }) {
             currency_code: plan.currency,
             value: plan.price.toFixed(2),
           },
-          custom_id: `${payload.id}:${planId}`, // 存储用户ID和方案ID
+          custom_id: `${payload.id}:${planId}`,
         },
       ],
       application_context: {
@@ -56,6 +110,8 @@ export async function onRequestPost({ request, env }) {
         cancel_url: `${new URL(request.url).origin}/payment-cancelled`,
       },
     };
+
+    console.log('Creating PayPal order:', orderPayload);
 
     const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v2/checkout/orders`, {
       method: 'POST',
@@ -73,8 +129,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     const order = await response.json();
+    console.log('PayPal order created:', order);
     
-    // 在数据库中创建待处理的订阅记录
     try {
       await env.DB.prepare(`
         INSERT INTO subscriptions (user_id, plan_type, amount, currency, status, created_at)
@@ -82,7 +138,6 @@ export async function onRequestPost({ request, env }) {
       `).bind(payload.id, planId, plan.price, plan.currency).run();
     } catch (dbError) {
       console.error('Database error:', dbError);
-      // 即使数据库失败，也返回 PayPal 订单，后续通过 Webhook 修复
     }
 
     return jsonResp({

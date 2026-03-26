@@ -1,6 +1,61 @@
 // PayPal 捕获订单 API
-import { verifyJwt, json as jsonResp, cors as corsResp } from '../../_utils.js';
-import { PAYPAL_CONFIG, PLANS, getAccessToken } from './config.js';
+import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
+
+const PAYPAL_CONFIG = {
+  mode: 'sandbox',
+  clientId: 'Af7Scqb91NwnT2cofnPndwHYjqkImKSJGJGITLt8qlvxLdcvDw6tDctfk7xT1VH8jeKBAi1OjJeT411R',
+  clientSecret: 'EDBwT8xf200f54mN8orpRSWDQmY_HA3qFwPcy75kVUuiKbFTI38O6XvIZP0aTRiCjv8gh4dRR1bcQpLA',
+  apiBase: 'https://api-m.sandbox.paypal.com',
+};
+
+const PLANS = {
+  monthly: {
+    id: 'monthly',
+    name: 'Pro 月度',
+    price: 1.99,
+    currency: 'USD',
+    interval: 'MONTH',
+    cnyPrice: 9.9,
+  },
+  yearly: {
+    id: 'yearly',
+    name: 'Pro 年度',
+    price: 14.99,
+    currency: 'USD',
+    interval: 'YEAR',
+    cnyPrice: 99,
+  },
+  lifetime: {
+    id: 'lifetime',
+    name: '终身会员',
+    price: 39.99,
+    currency: 'USD',
+    interval: null,
+    cnyPrice: 299,
+  },
+};
+
+async function getAccessToken() {
+  const auth = Buffer.from(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`).toString('base64');
+  
+  const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${auth}`,
+    },
+    body: 'grant_type=client_credentials',
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('PayPal token error:', error);
+    throw new Error('Failed to get PayPal access token');
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
 
 export async function onRequestOptions() { return corsResp(); }
 
@@ -31,9 +86,8 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const accessToken = await getAccessToken(env);
+    const accessToken = await getAccessToken();
 
-    // 捕获 PayPal 订单
     const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v2/checkout/orders/${orderId}/capture`, {
       method: 'POST',
       headers: {
@@ -49,8 +103,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     const captureData = await response.json();
+    console.log('PayPal capture data:', captureData);
     
-    // 检查支付状态
     const purchaseUnit = captureData.purchase_units?.[0];
     const capture = purchaseUnit?.payments?.captures?.[0];
     
@@ -58,7 +112,6 @@ export async function onRequestPost({ request, env }) {
       return jsonResp({ error: '支付未完成' }, 400);
     }
 
-    // 从 custom_id 中提取用户ID和方案
     const customId = purchaseUnit?.custom_id || '';
     const [userId, planId] = customId.split(':');
     
@@ -71,12 +124,10 @@ export async function onRequestPost({ request, env }) {
       return jsonResp({ error: '无效的订阅方案' }, 400);
     }
 
-    // 计算过期时间
     let expiresAt = null;
     const now = new Date();
     
     if (planId === 'lifetime') {
-      // 终身会员设置一个很远的过期时间
       expiresAt = new Date(now.getFullYear() + 100, now.getMonth(), now.getDate());
     } else if (planId === 'yearly') {
       expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
@@ -84,9 +135,7 @@ export async function onRequestPost({ request, env }) {
       expiresAt = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
     }
 
-    // 数据库事务：更新用户和订阅记录
     try {
-      // 1. 更新用户表
       await env.DB.prepare(`
         UPDATE users 
         SET is_pro = 1, 
@@ -98,7 +147,6 @@ export async function onRequestPost({ request, env }) {
         WHERE id = ?
       `).bind(planId, expiresAt.toISOString(), orderId, payload.id).run();
 
-      // 2. 更新订阅记录
       await env.DB.prepare(`
         UPDATE subscriptions 
         SET paypal_order_id = ?, 
@@ -111,7 +159,6 @@ export async function onRequestPost({ request, env }) {
       `).bind(orderId, expiresAt.toISOString(), payload.id).run();
     } catch (dbError) {
       console.error('Database update error:', dbError);
-      // 即使数据库更新失败，也返回支付成功，后续通过 Webhook 修复
     }
 
     return jsonResp({
