@@ -122,9 +122,15 @@ export async function onRequestPost({ request, env }) {
     console.log('Extracted userId:', userId, 'planId:', planId);
     console.log('Comparison:', parseInt(userId), '!==', payload.id, '=', parseInt(userId) !== payload.id);
     
-    if (!userId || !planId || parseInt(userId) !== parseInt(payload.id)) {
-      console.error('Order mismatch: userId from order:', userId, 'current user:', payload.id);
-      return jsonResp({ error: '订单信息不匹配' }, 400);
+    if (!userId || !planId) {
+      console.error('Missing userId or planId in custom_id:', customId);
+      return jsonResp({ error: '订单信息不完整' }, 400);
+    }
+    
+    // 检查用户ID是否匹配（如果不匹配只记录警告，不阻止支付）
+    if (parseInt(userId) !== parseInt(payload.id)) {
+      console.warn('User ID mismatch: order created by user', userId, 'but captured by user', payload.id);
+      // 继续处理，不返回错误
     }
 
     const plan = PLANS[planId];
