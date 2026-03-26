@@ -76,13 +76,17 @@ export async function onRequestPost({ request, env }) {
   let body;
   try {
     body = await request.json();
-  } catch {
+    console.log('Request body:', JSON.stringify(body));
+  } catch (e) {
+    console.error('Failed to parse request body:', e);
     return jsonResp({ error: '请求格式错误' }, 400);
   }
 
   const { orderId } = body;
+  console.log('Extracted orderId:', orderId);
   
   if (!orderId) {
+    console.error('Missing orderId in request body');
     return jsonResp({ error: '缺少订单ID' }, 400);
   }
 
