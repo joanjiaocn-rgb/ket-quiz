@@ -60,15 +60,24 @@ async function getAccessToken() {
 export async function onRequestOptions() { return corsResp(); }
 
 export async function onRequestPost({ request, env }) {
+  console.log('PayPal create order API called');
+  
   const authHeader = request.headers.get('Authorization');
+  console.log('Auth header:', authHeader ? 'present' : 'missing');
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Missing or invalid auth header');
     return jsonResp({ error: '未登录' }, 401);
   }
 
   let payload;
   try {
-    payload = await verifyJwt(authHeader.split(' ')[1]);
-  } catch {
+    const token = authHeader.split(' ')[1];
+    console.log('Verifying token...');
+    payload = await verifyJwt(token);
+    console.log('Token verified, user id:', payload?.id);
+  } catch (e) {
+    console.error('Token verification failed:', e);
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
