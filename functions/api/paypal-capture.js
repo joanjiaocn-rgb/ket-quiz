@@ -1,4 +1,4 @@
-// PayPal 捕获订单 API
+// PayPal 捕获订单 API（简化版）
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
 
 const PAYPAL_CONFIG = {
@@ -36,7 +36,6 @@ const PLANS = {
 };
 
 async function getAccessToken() {
-  // 使用 btoa 代替 Buffer（Cloudflare Workers 兼容）
   const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);
   
   const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
@@ -61,6 +60,8 @@ async function getAccessToken() {
 export async function onRequestOptions() { return corsResp(); }
 
 export async function onRequestPost({ request, env }) {
+  console.log('=== paypal-capture API called ===');
+  
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return jsonResp({ error: '未登录' }, 401);
@@ -68,40 +69,72 @@ export async function onRequestPost({ request, env }) {
 
   let payload;
   try {
-    payload = await verifyJwt(authHeader.split(' ')[1]);
+    const token = authHeader.split(' ')[1];
+    payload = await verifyJwt(token);
   } catch {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  let body;
+  console.log('1. Token verified, user id:', payload?.id);
+
   try {
-    // 尝试多种方式获取请求体
-    const text = await request.text();
-    console.log('Raw request body:', text);
-    
-    if (!text || text.trim() === '') {
-      return jsonResp({ error: '请求体为空' }, 400);
+    const bodyText = await request.text();
+    console.log('2. Raw body:', bodyText);
+
+    let body;
+    try {
+      body = JSON.parse(bodyText);
+      console.log('3. Parsed body:', JSON.stringify(body));
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      return jsonResp({ error: 'JSON解析失败', raw: bodyText }, 400);
     }
-    
-    body = JSON.parse(text);
-    console.log('Parsed request body:', JSON.stringify(body));
-  } catch (e) {
-    console.error('Failed to parse request body:', e);
-    return jsonResp({ error: '请求格式错误' }, 400);
-  }
 
-  const orderId = body.orderId || body.orderID;
-  console.log('Extracted orderId:', orderId);
-  
-  if (!orderId) {
-    console.error('Missing orderId in request body. Body keys:', Object.keys(body));
-    return jsonResp({ error: '缺少订单ID', body: body }, 400);
-  }
+    const orderId = body.orderId || body.orderID;
+    console.log('4. Extracted orderId:', orderId);
 
-  try {
+    if (!orderId) {
+      console.error('5. No orderId found!');
+      return jsonResp({ error: '缺少订单ID', body: body }, 400);
+    }
+
+    console.log('6. All checks passed, proceeding with capture...');
+
     const accessToken = await getAccessToken();
 
-    const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v2/checkout/orders/${orderId}/capture`, {
+    // 1. 先获取订单详情，获取 custom_id
+    console.log('6. Fetching order details for:', orderId);
+    const orderDetailsResponse = await fetch(`${PAYPAL_CONFIG.apiBase}/v2/checkout/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!orderDetailsResponse.ok) {
+      const error = await orderDetailsResponse.text();
+      console.error('PayPal get order error:', error);
+      return jsonResp({ error: '获取订单信息失败' }, 500);
+    }
+
+    const orderDetails = await orderDetailsResponse.json();
+    console.log('7. Order details:', JSON.stringify(orderDetails));
+
+    const purchaseUnit = orderDetails.purchase_units?.[0];
+    const customId = purchaseUnit?.custom_id || '';
+    console.log('8. Custom ID from order details:', customId);
+
+    // 2. 解析 custom_id 获取 planId
+    let planId = 'monthly'; // 默认
+    if (customId) {
+      const parts = customId.split(':');
+      if (parts[1]) planId = parts[1];
+    }
+    console.log('9. Using planId:', planId);
+
+    // 3. 执行捕获
+    console.log('10. Capturing order...');
+    const captureResponse = await fetch(`${PAYPAL_CONFIG.apiBase}/v2/checkout/orders/${orderId}/capture`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,53 +142,30 @@ export async function onRequestPost({ request, env }) {
       },
     });
 
-    if (!response.ok) {
-      const error = await response.text();
+    if (!captureResponse.ok) {
+      const error = await captureResponse.text();
       console.error('PayPal capture error:', error);
       return jsonResp({ error: '支付确认失败' }, 500);
     }
 
-    const captureData = await response.json();
-    console.log('PayPal capture data:', JSON.stringify(captureData, null, 2));
-    
-    const purchaseUnit = captureData.purchase_units?.[0];
-    console.log('Purchase unit:', JSON.stringify(purchaseUnit, null, 2));
-    
+    const captureData = await captureResponse.json();
+    console.log('11. PayPal capture success:', captureData?.id);
+
     const capture = purchaseUnit?.payments?.captures?.[0];
+
+    const captureStatus = captureData.status;
+    console.log('12. Capture status:', captureStatus);
     
-    if (!capture || capture.status !== 'COMPLETED') {
-      return jsonResp({ error: '支付未完成' }, 400);
+    if (captureStatus !== 'COMPLETED') {
+      return jsonResp({ error: '支付未完成', status: captureStatus }, 400);
     }
 
-    const customId = purchaseUnit?.custom_id || '';
-    console.log('Custom ID from PayPal:', customId);
-    console.log('Custom ID type:', typeof customId);
-    console.log('Current user ID from token:', payload.id);
-    
-    const [userId, planId] = customId.split(':');
-    
-    console.log('Extracted userId:', userId, 'planId:', planId);
-    console.log('Comparison:', parseInt(userId), '!==', payload.id, '=', parseInt(userId) !== payload.id);
-    
-    if (!planId) {
-      console.error('Missing planId in custom_id:', customId);
-      return jsonResp({ error: '订单信息不完整，请重试' }, 400);
-    }
-    
-    // 检查用户ID是否匹配（如果不匹配只记录警告，不阻止支付）
-    if (parseInt(userId) !== parseInt(payload.id)) {
-      console.warn('User ID mismatch: order created by user', userId, 'but captured by user', payload.id);
-      // 继续处理，不返回错误
-    }
-
-    const plan = PLANS[planId];
-    if (!plan) {
-      return jsonResp({ error: '无效的订阅方案' }, 400);
-    }
+    const plan = PLANS[planId] || PLANS.monthly;
+    console.log('13. Plan found:', plan.name);
 
     let expiresAt = null;
     const now = new Date();
-    
+
     if (planId === 'lifetime') {
       expiresAt = new Date(now.getFullYear() + 100, now.getMonth(), now.getDate());
     } else if (planId === 'yearly') {
@@ -163,6 +173,8 @@ export async function onRequestPost({ request, env }) {
     } else if (planId === 'monthly') {
       expiresAt = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
     }
+
+    console.log('14. Expires at:', expiresAt?.toISOString());
 
     try {
       await env.DB.prepare(`
@@ -175,21 +187,18 @@ export async function onRequestPost({ request, env }) {
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).bind(planId, expiresAt.toISOString(), orderId, payload.id).run();
+      console.log('15. User updated');
 
       await env.DB.prepare(`
-        UPDATE subscriptions 
-        SET paypal_order_id = ?, 
-            status = 'active',
-            started_at = CURRENT_TIMESTAMP,
-            expires_at = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = ? AND status = 'pending'
-        ORDER BY id DESC LIMIT 1
-      `).bind(orderId, expiresAt.toISOString(), payload.id).run();
+        INSERT OR REPLACE INTO subscriptions (user_id, paypal_order_id, plan_type, amount, currency, status, started_at, expires_at, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'active', CURRENT_TIMESTAMP, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `).bind(payload.id, orderId, planId, plan.price, plan.currency, expiresAt.toISOString()).run();
+      console.log('16. Subscription created/updated');
     } catch (dbError) {
-      console.error('Database update error:', dbError);
+      console.error('Database error:', dbError);
     }
 
+    console.log('17. All done, returning success');
     return jsonResp({
       success: true,
       plan: planId,
@@ -197,7 +206,7 @@ export async function onRequestPost({ request, env }) {
     });
 
   } catch (error) {
-    console.error('PayPal capture error:', error);
-    return jsonResp({ error: '支付确认失败' }, 500);
+    console.error('=== paypal-capture ERROR ===', error);
+    return jsonResp({ error: '服务器错误', details: String(error) }, 500);
   }
 }
