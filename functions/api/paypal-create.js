@@ -111,14 +111,7 @@ export async function onRequestPost({ request, env }) {
           custom_id: `${payload.id}:${planId}`,
         },
       ],
-      application_context: {
-        brand_name: 'KET 冲刺小站',
-        locale: 'zh-CN',
-        shipping_preference: 'NO_SHIPPING',
-        user_action: 'PAY_NOW',
-        return_url: `${new URL(request.url).origin}/payment-success`,
-        cancel_url: `${new URL(request.url).origin}/payment-cancelled`,
-      },
+      // 移除 application_context，让 PayPal 使用回调方式
     };
 
     console.log('Creating PayPal order:', orderPayload);
