@@ -36,7 +36,8 @@ const PLANS = {
 };
 
 async function getAccessToken() {
-  const auth = Buffer.from(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`).toString('base64');
+  // 使用 btoa 代替 Buffer（Cloudflare Workers 兼容）
+  const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);
   
   const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
     method: 'POST',
