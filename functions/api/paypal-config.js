@@ -12,7 +12,8 @@ export const PLANS = {
   monthly: {
     id: 'monthly',
     name: 'Pro Monthly',
-    price: 4.99, // USD
+    regularPrice: 4.99,      // 正常价格
+    trialPrice: 0.10,        // 首月优惠价格
     currency: 'USD',
     interval: 'MONTH',
     cnyPrice: 9.9,
@@ -20,7 +21,8 @@ export const PLANS = {
   yearly: {
     id: 'yearly',
     name: 'Pro Yearly',
-    price: 49.99, // USD
+    regularPrice: 49.99,
+    trialPrice: null,        // 年付没有首月优惠
     currency: 'USD',
     interval: 'YEAR',
     cnyPrice: 99,
@@ -28,7 +30,8 @@ export const PLANS = {
   lifetime: {
     id: 'lifetime',
     name: 'Lifetime',
-    price: 149.99, // USD
+    regularPrice: 149.99,
+    trialPrice: null,
     currency: 'USD',
     interval: null,
     cnyPrice: 299,
