@@ -194,6 +194,82 @@
     .tab-content.active {
       display: block;
     }
+
+    /* 套餐信息样式 */
+    .subscription-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .subscription-section.pro {
+      background: linear-gradient(135deg, #fff5f9 0%, #ede9fe 100%);
+      border-color: #FF6B9D;
+    }
+    .subscription-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .subscription-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .subscription-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e9ecef;
+      color: #666;
+    }
+    .subscription-badge.pro {
+      background: linear-gradient(135deg, #FF6B9D, #A78BFA);
+      color: white;
+    }
+    .subscription-name {
+      font-size: 15px;
+      color: #333;
+      font-weight: 600;
+    }
+    .btn-upgrade {
+      background: linear-gradient(135deg, #FF6B9D, #A78BFA);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,107,157,0.35);
+    }
+    .subscription-details {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .detail-item .label {
+      color: #666;
+      font-size: 14px;
+    }
+    .detail-item .value {
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
     @media (max-width: 768px) {
       .profile-grid {
         grid-template-columns: 1fr;
@@ -230,6 +306,23 @@
           <span>等级 <span id="profileLevel">1</span></span>
           <span>·</span>
           <span id="profilePoints">0</span> 积分
+        </div>
+      </div>
+    </div>
+
+    <!-- 套餐信息 -->
+    <div class="profile-section subscription-section" id="subscriptionSection" style="margin-bottom: 24px;">
+      <div class="subscription-header">
+        <div class="subscription-info">
+          <span class="subscription-badge" id="subscriptionBadge">免费版</span>
+          <span class="subscription-name" id="subscriptionName"></span>
+        </div>
+        <button class="btn-upgrade" id="upgradeBtn" onclick="location.href='pricing.html'">升级套餐</button>
+      </div>
+      <div class="subscription-details" id="subscriptionDetails" style="display: none;">
+        <div class="detail-item">
+          <span class="label">到期时间</span>
+          <span class="value" id="expireDate">-</span>
         </div>
       </div>
     </div>

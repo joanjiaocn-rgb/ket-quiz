@@ -120,6 +120,65 @@ function renderAchievements(achievements) {
   document.getElementById('achievementList').innerHTML = html || '<p>暂无成就</p>';
 }
 
+// 加载套餐信息
+async function loadSubscription() {
+  try {
+    const res = await fetch(`${API_BASE}/user/subscription`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    renderSubscription(data);
+  } catch (e) {
+    console.error('加载套餐信息失败:', e);
+    // 默认显示免费版
+    renderSubscription({ isPro: false, subscriptionType: null });
+  }
+}
+
+// 渲染套餐信息
+function renderSubscription(data) {
+  const isPro = !!data.isPro;
+  const subscriptionType = data.subscriptionType || data.subscription_type;
+  const section = document.getElementById('subscriptionSection');
+  const badge = document.getElementById('subscriptionBadge');
+  const name = document.getElementById('subscriptionName');
+  const details = document.getElementById('subscriptionDetails');
+  const expireDate = document.getElementById('expireDate');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+
+  if (isPro) {
+    // Pro 用户
+    section.classList.add('pro');
+    badge.classList.add('pro');
+    badge.textContent = 'Pro';
+    
+    const planNames = {
+      monthly: '月度会员',
+      yearly: '年度会员',
+      lifetime: '终身会员'
+    };
+    name.textContent = planNames[subscriptionType] || 'Pro 会员';
+    
+    // 显示到期时间
+    if (data.expiresAt || data.pro_expires_at) {
+      const expire = new Date(data.expiresAt || data.pro_expires_at);
+      expireDate.textContent = expire.toLocaleDateString('zh-CN');
+      details.style.display = 'block';
+    }
+    
+    upgradeBtn.textContent = '升级套餐';
+  } else {
+    // 免费用户
+    section.classList.remove('pro');
+    badge.classList.remove('pro');
+    badge.textContent = '免费版';
+    name.textContent = '';
+    details.style.display = 'none';
+    upgradeBtn.textContent = '升级 Pro';
+  }
+}
+
 // 保存个人资料
 document.getElementById('profileForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -185,7 +244,8 @@ async function init() {
   await Promise.all([
     loadProfile(),
     loadStatistics(),
-    loadAchievements()
+    loadAchievements(),
+    loadSubscription()
   ]);
 }
 

@@ -27,9 +27,13 @@ async function checkSubscription() {
     // 使用 !! 将 isPro 转换为布尔值，null/undefined 会被视为 false
     const isPro = !!data.isPro;
 
+    // 所有用户都显示升级按钮，但文字不同
+    const proBtn = document.getElementById('proBtn');
+    proBtn.style.display = 'inline-block';
+    
     if (isPro) {
-      // Pro 用户：隐藏升级按钮，解锁所有题型
-      document.getElementById('proBtn').style.display = 'none';
+      // Pro 用户：修改按钮文字为"升级套餐"，解锁所有题型，隐藏横幅
+      proBtn.textContent = '⭐ 升级套餐';
       document.getElementById('proBanner').style.display = 'none';
       document.getElementById('dailyQuota').style.display = 'none';
       document.querySelectorAll('.type-card.locked').forEach(card => {
@@ -41,8 +45,8 @@ async function checkSubscription() {
         card.onclick = () => startQuiz(type);
       });
     } else {
-      // 免费用户：显示升级按钮，锁定付费题型
-      document.getElementById('proBtn').style.display = 'inline-block';
+      // 免费用户：显示"升级 Pro"，锁定付费题型
+      proBtn.textContent = '🚀 升级 Pro';
       document.getElementById('proBanner').style.display = 'block';
       document.getElementById('dailyQuota').style.display = 'block';
       document.getElementById('todayCount').textContent = data.todayQuestions || 0;
@@ -59,6 +63,7 @@ async function checkSubscription() {
     console.error('检查订阅失败:', e);
     // API 失败时，默认显示升级引导（假设是免费用户）
     document.getElementById('proBtn').style.display = 'inline-block';
+    document.getElementById('proBtn').textContent = '🚀 升级 Pro';
     document.getElementById('proBanner').style.display = 'block';
     document.getElementById('dailyQuota').style.display = 'block';
     document.getElementById('todayCount').textContent = '0';
