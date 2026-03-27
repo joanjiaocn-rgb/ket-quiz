@@ -111,3 +111,25 @@ section h3 { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
 .empty-msg p { font-size: 18px; color: var(--text-light); }
 .loading-anim { text-align: center; padding: 40px; font-size: 18px; color: var(--text-light); }
 .loading { color: var(--text-light); font-size: 14px; padding: 20px; text-align: center; }
+
+/* Pro Banner - 升级引导横幅 */
+.pro-banner { background: linear-gradient(135deg,var(--primary),var(--secondary)); padding: 16px 24px; margin-bottom: 20px; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(255,107,157,0.3); animation: slideIn 0.5s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+.pro-banner-content { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pro-icon { font-size: 28px; animation: bounce 1s infinite; }
+.pro-text { color: white; font-weight: 600; flex: 1; font-size: 15px; }
+.btn-close { background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+.btn-close:hover { background: rgba(255,255,255,0.35); }
+
+/* Pro Button in Top Bar */
+.pro-btn { background: linear-gradient(135deg,var(--accent),#F59E0B) !important; color: #92400E !important; border: none !important; font-weight: 700; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(252,211,77,0.4); } 50% { box-shadow: 0 0 0 8px rgba(252,211,77,0); } }
+
+/* Locked Type Cards */
+.type-card.locked { opacity: 0.7; position: relative; }
+.type-card.locked::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.5); border-radius: var(--radius); }
+.pro-lock { position: absolute; top: 8px; right: 8px; background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; z-index: 1; }
+
+/* Daily Quota */
+.daily-quota { margin-top: 12px; padding: 10px 16px; background: white; border-radius: 12px; display: inline-block; font-size: 14px; color: var(--text-light); }
+.daily-quota strong { color: var(--primary); font-size: 18px; }
