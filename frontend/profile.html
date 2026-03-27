@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>个人中心 👤</title>
+  <title>Profile 👤</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .profile-container {
@@ -287,11 +287,11 @@
 <body class="dashboard-page">
   <header class="top-bar">
     <div class="top-bar-left">
-      <button class="btn-sm" onclick="location.href='dashboard.html'">← 返回学习中心</button>
+      <button class="btn-sm" onclick="location.href='dashboard.html'">← Back to Learning Center</button>
     </div>
     <div class="top-bar-right">
       <span id="welcomeUser">👤</span>
-      <button class="btn-sm" onclick="logout()">退出</button>
+      <button class="btn-sm" onclick="logout()">Logout</button>
     </div>
   </header>
 
@@ -300,28 +300,28 @@
     <div class="profile-header" id="profileHeader">
       <div class="profile-avatar" id="profileAvatar">🦄</div>
       <div class="profile-info">
-        <h1 id="profileName">加载中...</h1>
+        <h1 id="profileName">Loading...</h1>
         <p id="profileBio"></p>
         <div class="profile-level">
-          <span>等级 <span id="profileLevel">1</span></span>
+          <span>Level <span id="profileLevel">1</span></span>
           <span>·</span>
-          <span id="profilePoints">0</span> 积分
+          <span id="profilePoints">0</span> Points
         </div>
       </div>
     </div>
 
-    <!-- 套餐信息 -->
+    <!-- Subscription Info -->
     <div class="profile-section subscription-section" id="subscriptionSection" style="margin-bottom: 24px;">
       <div class="subscription-header">
         <div class="subscription-info">
-          <span class="subscription-badge" id="subscriptionBadge">免费版</span>
+          <span class="subscription-badge" id="subscriptionBadge">Free</span>
           <span class="subscription-name" id="subscriptionName"></span>
         </div>
-        <button class="btn-upgrade" id="upgradeBtn" onclick="location.href='pricing.html'">升级套餐</button>
+        <button class="btn-upgrade" id="upgradeBtn" onclick="location.href='pricing.html'">Upgrade Plan</button>
       </div>
       <div class="subscription-details" id="subscriptionDetails" style="display: none;">
         <div class="detail-item">
-          <span class="label">到期时间</span>
+          <span class="label">Expires on</span>
           <span class="value" id="expireDate">-</span>
         </div>
       </div>
@@ -332,31 +332,31 @@
       <!-- 左侧 - 学习统计和成就 -->
       <div>
         <div class="profile-section">
-          <h2>📊 学习统计</h2>
+          <h2>📊 Learning Stats</h2>
           <div class="stats-cards" id="statsCards">
             <div class="stat-card">
               <div class="number">-</div>
-              <div class="label">总答题数</div>
+              <div class="label">Total Questions</div>
             </div>
             <div class="stat-card">
               <div class="number">-</div>
-              <div class="label">正确率</div>
+              <div class="label">Accuracy</div>
             </div>
             <div class="stat-card">
               <div class="number">-</div>
-              <div class="label">练习场次</div>
+              <div class="label">Practice Sessions</div>
             </div>
             <div class="stat-card">
               <div class="number">-</div>
-              <div class="label">连续学习</div>
+              <div class="label">Study Streak</div>
             </div>
           </div>
         </div>
 
         <div class="profile-section" style="margin-top: 24px;">
-          <h2>🏆 成就</h2>
+          <h2>🏆 Achievements</h2>
           <div class="achievement-list" id="achievementList">
-            <div class="loading">加载中...</div>
+            <div class="loading">Loading...</div>
           </div>
         </div>
       </div>
@@ -364,76 +364,76 @@
       <!-- 右侧 - 个人资料和设置 -->
       <div>
         <div class="nav-tabs">
-          <button class="nav-tab active" onclick="switchTab('profile')">个人资料</button>
-          <button class="nav-tab" onclick="switchTab('settings')">设置</button>
+          <button class="nav-tab active" onclick="switchTab('profile')">Profile</button>
+          <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
         </div>
 
-        <!-- 个人资料编辑 -->
+        <!-- Profile Edit -->
         <div class="tab-content active" id="tab-profile">
           <div class="profile-section">
-            <h2>✏️ 编辑资料</h2>
+            <h2>✏️ Edit Profile</h2>
             <form id="profileForm">
               <div class="form-group">
-                <label>显示名称</label>
-                <input type="text" id="displayName" placeholder="给别人看的名字">
+                <label>Display Name</label>
+                <input type="text" id="displayName" placeholder="Name shown to others">
               </div>
               <div class="form-group">
-                <label>个人简介</label>
-                <textarea id="bio" placeholder="介绍一下自己..."></textarea>
+                <label>Bio</label>
+                <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
               </div>
               <div class="form-group">
-                <label>学习目标</label>
+                <label>Study Goal</label>
                 <select id="studyGoal">
-                  <option value="">请选择</option>
-                  <option value="pass">通过 KET 考试</option>
-                  <option value="improve">提高英语水平</option>
-                  <option value="fun">兴趣爱好</option>
+                  <option value="">Select...</option>
+                  <option value="pass">Pass KET Exam</option>
+                  <option value="improve">Improve English</option>
+                  <option value="fun">For Fun</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>目标分数</label>
-                <input type="number" id="targetScore" placeholder="例如：120" min="0" max="150">
+                <label>Target Score</label>
+                <input type="number" id="targetScore" placeholder="e.g. 120" min="0" max="150">
               </div>
-              <button type="submit" class="btn-primary">保存修改</button>
+              <button type="submit" class="btn-primary">Save Changes</button>
             </form>
           </div>
         </div>
 
-        <!-- 设置 -->
+        <!-- Settings -->
         <div class="tab-content" id="tab-settings">
           <div class="profile-section">
-            <h2>⚙️ 偏好设置</h2>
+            <h2>⚙️ Preferences</h2>
             <form id="settingsForm">
               <div class="form-group">
                 <label>
-                  <input type="checkbox" id="notificationsEnabled"> 启用通知
+                  <input type="checkbox" id="notificationsEnabled"> Enable Notifications
                 </label>
               </div>
               <div class="form-group">
                 <label>
-                  <input type="checkbox" id="soundEnabled"> 启用声音
+                  <input type="checkbox" id="soundEnabled"> Enable Sound
                 </label>
               </div>
               <div class="form-group">
                 <label>
-                  <input type="checkbox" id="autoPlayAudio"> 自动播放听力音频
+                  <input type="checkbox" id="autoPlayAudio"> Auto-play Listening Audio
                 </label>
               </div>
               <div class="form-group">
-                <label>主题</label>
+                <label>Theme</label>
                 <select id="theme">
-                  <option value="light">浅色</option>
-                  <option value="dark">深色</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>语言</label>
+                <label>Language</label>
                 <select id="language">
-                  <option value="zh-CN">中文</option>
                   <option value="en">English</option>
+                  <option value="zh-CN">中文</option>
                 </select>
               </div>
-              <button type="submit" class="btn-primary">保存设置</button>
+              <button type="submit" class="btn-primary">Save Settings</button>
             </form>
           </div>
         </div>

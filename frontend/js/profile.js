@@ -27,7 +27,7 @@ async function loadProfile() {
     currentUser = data;
     renderProfile(data);
   } catch (e) {
-    console.error('加载个人资料失败:', e);
+    console.error('Failed to load profile:', e);
   }
 }
 
@@ -69,7 +69,7 @@ async function loadStatistics() {
     if (stats.error) throw new Error(stats.error);
     renderStatistics(stats);
   } catch (e) {
-    console.error('加载统计数据失败:', e);
+    console.error('Failed to load statistics:', e);
   }
 }
 
@@ -77,19 +77,19 @@ function renderStatistics(stats) {
   document.getElementById('statsCards').innerHTML = `
     <div class="stat-card">
       <div class="number">${stats.total_questions_answered || 0}</div>
-      <div class="label">总答题数</div>
+      <div class="label">Total Questions</div>
     </div>
     <div class="stat-card">
       <div class="number">${stats.accuracy || 0}%</div>
-      <div class="label">正确率</div>
+      <div class="label">Accuracy</div>
     </div>
     <div class="stat-card">
       <div class="number">${stats.total_sessions || 0}</div>
-      <div class="label">练习场次</div>
+      <div class="label">Sessions</div>
     </div>
     <div class="stat-card">
-      <div class="number">${stats.streak_days || 0}天</div>
-      <div class="label">连续学习</div>
+      <div class="number">${stats.streak_days || 0}d</div>
+      <div class="label">Streak</div>
     </div>
   `;
 }
@@ -103,7 +103,7 @@ async function loadAchievements() {
     if (data.error) throw new Error(data.error);
     renderAchievements(data.all);
   } catch (e) {
-    console.error('加载成就失败:', e);
+    console.error('Failed to load achievements:', e);
   }
 }
 
@@ -117,7 +117,7 @@ function renderAchievements(achievements) {
       </div>
     </div>
   `).join('');
-  document.getElementById('achievementList').innerHTML = html || '<p>暂无成就</p>';
+  document.getElementById('achievementList').innerHTML = html || '<p>No achievements yet</p>';
 }
 
 // 加载套餐信息
@@ -130,8 +130,8 @@ async function loadSubscription() {
     if (data.error) throw new Error(data.error);
     renderSubscription(data);
   } catch (e) {
-    console.error('加载套餐信息失败:', e);
-    // 默认显示免费版
+    console.error('Failed to load subscription:', e);
+    // Default to free plan
     renderSubscription({ isPro: false, subscriptionType: null });
   }
 }
@@ -148,34 +148,34 @@ function renderSubscription(data) {
   const upgradeBtn = document.getElementById('upgradeBtn');
 
   if (isPro) {
-    // Pro 用户
+    // Pro user
     section.classList.add('pro');
     badge.classList.add('pro');
     badge.textContent = 'Pro';
     
     const planNames = {
-      monthly: '月度会员',
-      yearly: '年度会员',
-      lifetime: '终身会员'
+      monthly: 'Monthly',
+      yearly: 'Yearly',
+      lifetime: 'Lifetime'
     };
-    name.textContent = planNames[subscriptionType] || 'Pro 会员';
+    name.textContent = planNames[subscriptionType] || 'Pro Member';
     
-    // 显示到期时间
+    // Show expiration date
     if (data.expiresAt || data.pro_expires_at) {
       const expire = new Date(data.expiresAt || data.pro_expires_at);
-      expireDate.textContent = expire.toLocaleDateString('zh-CN');
+      expireDate.textContent = expire.toLocaleDateString('en-US');
       details.style.display = 'block';
     }
     
-    upgradeBtn.textContent = '升级套餐';
+    upgradeBtn.textContent = 'Upgrade Plan';
   } else {
-    // 免费用户
+    // Free user
     section.classList.remove('pro');
     badge.classList.remove('pro');
-    badge.textContent = '免费版';
+    badge.textContent = 'Free';
     name.textContent = '';
     details.style.display = 'none';
-    upgradeBtn.textContent = '升级 Pro';
+    upgradeBtn.textContent = 'Upgrade to Pro';
   }
 }
 
@@ -198,14 +198,14 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    alert('保存成功！');
+    alert('Saved successfully!');
     loadProfile();
   } catch (e) {
-    alert('保存失败: ' + e.message);
+    alert('Save failed: ' + e.message);
   }
 });
 
-// 保存设置
+// Save settings
 document.getElementById('settingsForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   try {
@@ -225,19 +225,19 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    alert('设置保存成功！');
+    alert('Settings saved!');
   } catch (e) {
-    alert('保存失败: ' + e.message);
+    alert('Save failed: ' + e.message);
   }
 });
 
-// 初始化
+// Initialize
 async function init() {
   const username = localStorage.getItem('username') || '';
   document.getElementById('welcomeUser').textContent = `👤 ${username}`;
 
-  // 立即设置默认值，不要一直显示加载中
-  document.getElementById('profileName').textContent = username || '用户';
+  // Set default values immediately
+  document.getElementById('profileName').textContent = username || 'User';
   document.getElementById('profileLevel').textContent = '1';
   document.getElementById('profilePoints').textContent = '0';
 
