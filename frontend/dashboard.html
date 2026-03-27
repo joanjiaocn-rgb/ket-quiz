@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>学习中心 🌈</title>
+  <title>Learning Center 🌈</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dashboard-page">
   <header class="top-bar">
     <div class="top-bar-left">
-      <span class="logo-small">🦄 KET冲刺小站</span>
+      <span class="logo-small">🦄 KET Prep Hub</span>
     </div>
     <div class="top-bar-right">
-      <span id="welcomeUser">👋 同学</span>
-      <button class="btn-sm pro-btn" id="proBtn" onclick="location.href='pricing.html'" style="display:none">🚀 升级 Pro</button>
-      <button class="btn-sm" onclick="location.href='profile.html'">👤 个人中心</button>
-      <button class="btn-sm" onclick="location.href='review.html'">📒 错题本</button>
-      <button class="btn-sm" onclick="logout()">退出</button>
+      <span id="welcomeUser">👋 Student</span>
+      <button class="btn-sm pro-btn" id="proBtn" onclick="location.href='pricing.html'" style="display:none">🚀 Upgrade</button>
+      <button class="btn-sm" onclick="location.href='profile.html'">👤 Profile</button>
+      <button class="btn-sm" onclick="location.href='review.html'">📒 Review</button>
+      <button class="btn-sm" onclick="logout()">Logout</button>
     </div>
   </header>
   <main class="dashboard-main">
-    <!-- Pro 升级横幅 -->
+    <!-- Pro Upgrade Banner -->
     <div class="pro-banner" id="proBanner" style="display:none">
       <div class="pro-banner-content">
         <span class="pro-icon">🚀</span>
-        <span class="pro-text">升级 Pro，解锁无限练习 + 所有题型！</span>
-        <button class="btn-primary btn-sm" onclick="location.href='pricing.html'">立即升级</button>
+        <span class="pro-text">Upgrade to Pro for unlimited practice + all question types!</span>
+        <button class="btn-primary btn-sm" onclick="location.href='pricing.html'">Upgrade Now</button>
         <button class="btn-close" onclick="closeProBanner()">✕</button>
       </div>
     </div>
 
     <div class="welcome-banner">
-      <h2>你好，<span id="userName"></span>！今天也要加油哦 💪</h2>
+      <h2>Hi, <span id="userName"></span>! Keep up the great work 💪</h2>
       <div class="daily-quota" id="dailyQuota" style="display:none">
-        <span>今日答题：<strong id="todayCount">0</strong>/20</span>
+        <span>Today's Questions: <strong id="todayCount">0</strong>/20</span>
       </div>
     </div>
     <section class="stats-section">
-      <h3>📊 我的进度</h3>
-      <div class="stats-grid" id="statsGrid"><div class="loading">加载中...</div></div>
+      <h3>📊 My Progress</h3>
+      <div class="stats-grid" id="statsGrid"><div class="loading">Loading...</div></div>
     </section>
     <section class="quiz-section">
-      <h3>🎯 选择题型开始练习</h3>
+      <h3>🎯 Choose a Topic to Practice</h3>
       <div class="type-grid" id="typeGrid">
-        <div class="type-card" onclick="startQuiz('vocabulary')"><div class="type-icon">📚</div><div class="type-name">单词</div><div class="type-desc">词汇积累</div></div>
-        <div class="type-card" onclick="startQuiz('grammar')"><div class="type-icon">✏️</div><div class="type-name">语法</div><div class="type-desc">句型结构</div></div>
-        <div class="type-card locked" id="readingCard" onclick="checkPro('reading')"><div class="type-icon">📖</div><div class="type-name">阅读</div><div class="type-desc">理解文章</div><div class="pro-lock">🔒 Pro</div></div>
-        <div class="type-card locked" id="writingCard" onclick="checkPro('writing')"><div class="type-icon">🖊️</div><div class="type-name">写作</div><div class="type-desc">书写表达</div><div class="pro-lock">🔒 Pro</div></div>
-        <div class="type-card locked" id="listeningCard" onclick="checkPro('listening')"><div class="type-icon">🎧</div><div class="type-name">听力</div><div class="type-desc">听懂对话</div><div class="pro-lock">🔒 Pro</div></div>
-        <div class="type-card locked" id="speakingCard" onclick="checkPro('speaking')"><div class="type-icon">🗣️</div><div class="type-name">口语</div><div class="type-desc">开口表达</div><div class="pro-lock">🔒 Pro</div></div>
-        <div class="type-card type-all" onclick="startQuiz('all')"><div class="type-icon">🌟</div><div class="type-name">综合测试</div><div class="type-desc">全题型混合</div></div>
+        <div class="type-card" onclick="startQuiz('vocabulary')"><div class="type-icon">📚</div><div class="type-name">Vocabulary</div><div class="type-desc">Word building</div></div>
+        <div class="type-card" onclick="startQuiz('grammar')"><div class="type-icon">✏️</div><div class="type-name">Grammar</div><div class="type-desc">Sentence structure</div></div>
+        <div class="type-card locked" id="readingCard" onclick="checkPro('reading')"><div class="type-icon">📖</div><div class="type-name">Reading</div><div class="type-desc">Comprehension</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="writingCard" onclick="checkPro('writing')"><div class="type-icon">🖊️</div><div class="type-name">Writing</div><div class="type-desc">Written expression</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="listeningCard" onclick="checkPro('listening')"><div class="type-icon">🎧</div><div class="type-name">Listening</div><div class="type-desc">Audio comprehension</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card locked" id="speakingCard" onclick="checkPro('speaking')"><div class="type-icon">🗣️</div><div class="type-name">Speaking</div><div class="type-desc">Oral expression</div><div class="pro-lock">🔒 Pro</div></div>
+        <div class="type-card type-all" onclick="startQuiz('all')"><div class="type-icon">🌟</div><div class="type-name">Mixed Test</div><div class="type-desc">All topics combined</div></div>
       </div>
     </section>
     <section class="history-section">
-      <h3>📅 最近测试记录</h3>
-      <div id="sessionHistory" class="history-list">加载中...</div>
+      <h3>📅 Recent Practice Sessions</h3>
+      <div id="sessionHistory" class="history-list">Loading...</div>
     </section>
   </main>
   <script src="js/dashboard.js"></script>

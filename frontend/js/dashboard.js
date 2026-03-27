@@ -4,16 +4,16 @@ const username = localStorage.getItem('username');
 if (!token) location.href = 'index.html';
 
 const typeMap = {
-  vocabulary: { label: '单词', icon: '📚' },
-  grammar: { label: '语法', icon: '✏️' },
-  reading: { label: '阅读', icon: '📖' },
-  writing: { label: '写作', icon: '🖊️' },
-  listening: { label: '听力', icon: '🎧' },
-  speaking: { label: '口语', icon: '🗣️' }
+  vocabulary: { label: 'Vocabulary', icon: '📚' },
+  grammar: { label: 'Grammar', icon: '✏️' },
+  reading: { label: 'Reading', icon: '📖' },
+  writing: { label: 'Writing', icon: '🖊️' },
+  listening: { label: 'Listening', icon: '🎧' },
+  speaking: { label: 'Speaking', icon: '🗣️' }
 };
 
 document.getElementById('userName').textContent = username;
-document.getElementById('welcomeUser').textContent = `👋 ${username}`;
+document.getElementById('welcomeUser').textContent = `👋 ${username || 'Student'}`;
 
 function logout() { localStorage.clear(); location.href = 'index.html'; }
 
@@ -24,34 +24,33 @@ async function checkSubscription() {
     });
     const data = await res.json();
 
-    // 使用 !! 将 isPro 转换为布尔值，null/undefined 会被视为 false
+    // Convert isPro to boolean
     const isPro = !!data.isPro;
 
-    // 所有用户都显示升级按钮，但文字不同
+    // Show upgrade button for all users with different text
     const proBtn = document.getElementById('proBtn');
     proBtn.style.display = 'inline-block';
     
     if (isPro) {
-      // Pro 用户：修改按钮文字为"升级套餐"，解锁所有题型，隐藏横幅
-      proBtn.textContent = '⭐ 升级套餐';
+      // Pro users: show "Upgrade Plan", unlock all topics, hide banner
+      proBtn.textContent = '⭐ Upgrade Plan';
       document.getElementById('proBanner').style.display = 'none';
       document.getElementById('dailyQuota').style.display = 'none';
       document.querySelectorAll('.type-card.locked').forEach(card => {
         card.classList.remove('locked');
         const lockDiv = card.querySelector('.pro-lock');
         if (lockDiv) lockDiv.remove();
-        // 恢复点击事件
         const type = card.id.replace('Card', '');
         card.onclick = () => startQuiz(type);
       });
     } else {
-      // 免费用户：显示"升级 Pro"，锁定付费题型
-      proBtn.textContent = '🚀 升级 Pro';
+      // Free users: show "Upgrade", lock premium topics
+      proBtn.textContent = '🚀 Upgrade';
       document.getElementById('proBanner').style.display = 'block';
       document.getElementById('dailyQuota').style.display = 'block';
       document.getElementById('todayCount').textContent = data.todayQuestions || 0;
 
-      // 如果今日已达20题，禁用单词和语法
+      // Disable free topics if reached 20 questions
       if (data.todayQuestions >= 20) {
         document.querySelectorAll('.type-card:not(.locked)').forEach(card => {
           card.style.opacity = '0.5';
@@ -60,10 +59,10 @@ async function checkSubscription() {
       }
     }
   } catch (e) {
-    console.error('检查订阅失败:', e);
-    // API 失败时，默认显示升级引导（假设是免费用户）
+    console.error('Subscription check failed:', e);
+    // Default to free user on API failure
     document.getElementById('proBtn').style.display = 'inline-block';
-    document.getElementById('proBtn').textContent = '🚀 升级 Pro';
+    document.getElementById('proBtn').textContent = '🚀 Upgrade';
     document.getElementById('proBanner').style.display = 'block';
     document.getElementById('dailyQuota').style.display = 'block';
     document.getElementById('todayCount').textContent = '0';
@@ -71,7 +70,7 @@ async function checkSubscription() {
 }
 
 function checkPro(type) {
-  alert(`🔒 ${typeMap[type]?.label || type} 是 Pro 专属功能\n\n升级 Pro 解锁所有题型和无限练习！`);
+  alert(`🔒 ${typeMap[type]?.label || type} is a Pro feature\n\nUpgrade to Pro to unlock all topics and unlimited practice!`);
   location.href = 'pricing.html';
 }
 
@@ -103,21 +102,21 @@ async function loadStats() {
     }
     const hist = document.getElementById('sessionHistory');
     if (!data.sessions.length) {
-      hist.innerHTML = '<p style="color:#9CA3AF;text-align:center;padding:20px">还没有测试记录，快去练习吧！</p>';
+      hist.innerHTML = '<p style="color:#9CA3AF;text-align:center;padding:20px">No practice sessions yet. Start practicing now!</p>';
       return;
     }
     hist.innerHTML = data.sessions.map(s => `
       <div class="history-item">
-        <span class="h-type">${typeMap[s.type]?.icon || '🌟'} ${typeMap[s.type]?.label || '综合'}</span>
+        <span class="h-type">${typeMap[s.type]?.icon || '🌟'} ${typeMap[s.type]?.label || 'Mixed'}</span>
         <span class="h-score">${s.score}/${s.total}</span>
-        <span class="h-date">${new Date(s.completed_at).toLocaleString('zh-CN')}</span>
+        <span class="h-date">${new Date(s.completed_at).toLocaleString('en-US')}</span>
       </div>`).join('');
   } catch (e) { console.error(e); }
 }
 
-// 初始化
+// Initialize
 async function init() {
-  // 检查 Pro 横幅是否已关闭
+  // Check if banner was closed
   const bannerClosed = localStorage.getItem('proBannerClosed');
   if (bannerClosed && Date.now() - parseInt(bannerClosed) < 24 * 60 * 60 * 1000) {
     document.getElementById('proBanner').style.display = 'none';

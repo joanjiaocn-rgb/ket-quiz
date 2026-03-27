@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>升级 Pro - KET冲刺小站</title>
+  <title>Upgrade to Pro - KET Prep Hub</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     * {
@@ -442,180 +442,180 @@
 <body>
   <header class="top-bar">
     <div class="top-bar-left">
-      <span class="logo-small" onclick="location.href='index.html'">🦄 KET冲刺小站</span>
+      <span class="logo-small" onclick="location.href='index.html'">🦄 KET Prep Hub</span>
     </div>
     <div class="top-bar-right">
       <span id="welcomeUser"></span>
-      <button class="btn-sm" onclick="location.href='dashboard.html'">🏠 首页</button>
-      <button class="btn-sm" id="logoutBtn" style="display:none" onclick="logout()">退出</button>
+      <button class="btn-sm" onclick="location.href='dashboard.html'">🏠 Home</button>
+      <button class="btn-sm" id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
     </div>
   </header>
 
   <main class="pricing-main">
     <!-- 头部区域 -->
     <div class="pricing-header">
-      <h1>选择适合你的学习方案 🚀</h1>
-      <p>解锁完整学习体验，高效备考 KET</p>
+      <h1>Choose Your Learning Plan 🚀</h1>
+      <p>Unlock the full KET prep experience and ace your exam</p>
     </div>
 
-    <!-- 年付/月付切换 -->
+    <!-- Billing Toggle -->
     <div class="billing-toggle">
-      <span>月付</span>
+      <span>Monthly</span>
       <div class="toggle-switch" onclick="toggleBilling()"></div>
-      <span>年付</span>
-      <span class="save-badge">省 17%</span>
+      <span>Yearly</span>
+      <span class="save-badge">Save 17%</span>
     </div>
 
-    <!-- 信任标识 -->
+    <!-- Trust Badges -->
     <div class="trust-badges">
       <div class="trust-badge">
         <span>🔒</span>
-        <span>安全支付</span>
+        <span>Secure Payment</span>
       </div>
       <div class="trust-badge">
         <span>✓</span>
-        <span>7天无理由退款</span>
+        <span>7-Day Money Back</span>
       </div>
       <div class="trust-badge">
         <span>⚡</span>
-        <span>即时开通</span>
+        <span>Instant Access</span>
       </div>
       <div class="trust-badge">
         <span>💬</span>
-        <span>专属客服</span>
+        <span>24/7 Support</span>
       </div>
     </div>
 
-    <!-- 定价卡片 -->
+    <!-- Pricing Cards -->
     <div class="pricing-cards">
-      <!-- 免费版 -->
+      <!-- Free Plan -->
       <div class="pricing-card free">
         <div class="card-header">
-          <h3>免费版</h3>
+          <h3>Free</h3>
           <div class="price-container">
-            <div class="price">¥0<span class="period">/永久</span></div>
+            <div class="price">$0<span class="period">/forever</span></div>
           </div>
         </div>
         <ul class="features">
-          <li>单词和语法练习</li>
-          <li>每天 20 道题</li>
-          <li>基础个人中心</li>
-          <li>错题本</li>
-          <li class="disabled">听力/口语/阅读/写作</li>
-          <li class="disabled">成就系统</li>
-          <li class="disabled">连续学习统计</li>
+          <li>Vocabulary & Grammar practice</li>
+          <li>20 questions per day</li>
+          <li>Basic profile</li>
+          <li>Review notebook</li>
+          <li class="disabled">Listening/Speaking/Reading/Writing</li>
+          <li class="disabled">Achievement system</li>
+          <li class="disabled">Study streak tracking</li>
         </ul>
-        <button class="btn-secondary" onclick="location.href='dashboard.html'">当前方案</button>
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Current Plan</button>
       </div>
 
-      <!-- 月度会员 -->
+      <!-- Monthly Pro -->
       <div class="pricing-card pro">
-        <div class="badge popular">🔥 最受欢迎</div>
+        <div class="badge popular">🔥 Most Popular</div>
         <div class="card-header">
-          <h3>Pro 月度</h3>
+          <h3>Pro Monthly</h3>
           <div class="price-container">
-            <div class="original-price">原价 ¥19.9</div>
-            <div class="price">¥9.9<span class="period">/月</span></div>
-            <div class="savings-tag">首月特惠</div>
+            <div class="original-price">Was $9.99</div>
+            <div class="price">$4.99<span class="period">/month</span></div>
+            <div class="savings-tag">First Month Special</div>
           </div>
         </div>
         <ul class="features">
-          <li>所有题型无限练习</li>
-          <li>无限答题数</li>
-          <li>完整个人中心</li>
-          <li>错题本无限容量</li>
-          <li>成就系统</li>
-          <li>连续学习统计</li>
-          <li>无广告体验</li>
+          <li>Unlimited practice for all topics</li>
+          <li>Unlimited questions</li>
+          <li>Full profile access</li>
+          <li>Unlimited review notebook</li>
+          <li>Achievement system</li>
+          <li>Study streak tracking</li>
+          <li>Ad-free experience</li>
         </ul>
-        <button class="btn-primary" onclick="subscribe('monthly')">立即升级</button>
+        <button class="btn-primary" onclick="subscribe('monthly')">Upgrade Now</button>
       </div>
 
-      <!-- 年度会员 -->
+      <!-- Yearly Pro -->
       <div class="pricing-card pro-year popular">
-        <div class="badge best-value">💰 最划算</div>
+        <div class="badge best-value">💰 Best Value</div>
         <div class="card-header">
-          <h3>Pro 年度</h3>
+          <h3>Pro Yearly</h3>
           <div class="price-container">
-            <div class="original-price">原价 ¥238.8</div>
-            <div class="price">¥99<span class="period">/年</span></div>
-            <div class="savings-tag">节省 ¥139.8</div>
+            <div class="original-price">Was $59.88</div>
+            <div class="price">$49.99<span class="period">/year</span></div>
+            <div class="savings-tag">Save $9.89</div>
           </div>
         </div>
         <ul class="features">
-          <li>所有题型无限练习</li>
-          <li>无限答题数</li>
-          <li>完整个人中心</li>
-          <li>错题本无限容量</li>
-          <li>成就系统</li>
-          <li>连续学习统计</li>
-          <li>无广告体验</li>
-          <li>平均仅 ¥8.25/月</li>
+          <li>Unlimited practice for all topics</li>
+          <li>Unlimited questions</li>
+          <li>Full profile access</li>
+          <li>Unlimited review notebook</li>
+          <li>Achievement system</li>
+          <li>Study streak tracking</li>
+          <li>Ad-free experience</li>
+          <li>Just $4.17/month</li>
         </ul>
-        <button class="btn-primary" onclick="subscribe('yearly')">立即升级</button>
+        <button class="btn-primary" onclick="subscribe('yearly')">Upgrade Now</button>
       </div>
 
-      <!-- 终身会员 -->
+      <!-- Lifetime -->
       <div class="pricing-card lifetime">
         <div class="card-header">
-          <h3>终身会员</h3>
+          <h3>Lifetime</h3>
           <div class="price-container">
-            <div class="price">¥299<span class="period">/终身</span></div>
+            <div class="price">$149<span class="period">/one-time</span></div>
           </div>
         </div>
         <ul class="features">
-          <li>所有题型无限练习</li>
-          <li>无限答题数</li>
-          <li>完整个人中心</li>
-          <li>错题本无限容量</li>
-          <li>成就系统</li>
-          <li>连续学习统计</li>
-          <li>无广告体验</li>
-          <li>一次付费，终身使用</li>
-          <li>未来所有新功能</li>
+          <li>Unlimited practice for all topics</li>
+          <li>Unlimited questions</li>
+          <li>Full profile access</li>
+          <li>Unlimited review notebook</li>
+          <li>Achievement system</li>
+          <li>Study streak tracking</li>
+          <li>Ad-free experience</li>
+          <li>One payment, lifetime access</li>
+          <li>All future features included</li>
         </ul>
-        <button class="btn-primary" onclick="subscribe('lifetime')">立即购买</button>
+        <button class="btn-primary" onclick="subscribe('lifetime')">Get Lifetime</button>
       </div>
     </div>
 
-    <!-- FAQ 部分 -->
+    <!-- FAQ Section -->
     <section class="faq-section">
-      <h2>❓ 常见问题</h2>
+      <h2>❓ Frequently Asked Questions</h2>
       <div class="faq-list">
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">付费后可以退款吗？</h3>
+          <h3 onclick="toggleFaq(this)">Can I get a refund?</h3>
           <div class="faq-answer">
-            <p>7天内未使用超过50题可以申请全额退款，款项将在3-5个工作日内原路退回。</p>
+            <p>Yes! We offer a 7-day money-back guarantee if you've answered fewer than 50 questions. Refunds are processed within 3-5 business days.</p>
           </div>
         </div>
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">会员到期后数据会丢失吗？</h3>
+          <h3 onclick="toggleFaq(this)">Will I lose my data if my subscription expires?</h3>
           <div class="faq-answer">
-            <p>不会！你的学习记录、错题本和成就都会永久保留，续费后可继续查看。</p>
+            <p>No! Your learning records, review notebook, and achievements are saved permanently. You can access them again when you renew your subscription.</p>
           </div>
         </div>
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">可以在多个设备上使用吗？</h3>
+          <h3 onclick="toggleFaq(this)">Can I use it on multiple devices?</h3>
           <div class="faq-answer">
-            <p>可以！同一账号支持同时登录 2 台设备，手机、平板、电脑都可以使用。</p>
+            <p>Yes! You can log in on up to 2 devices simultaneously - mobile, tablet, or desktop.</p>
           </div>
         </div>
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">免费用户每天多少题？</h3>
+          <h3 onclick="toggleFaq(this)">How many questions can free users do?</h3>
           <div class="faq-answer">
-            <p>免费用户每天最多 20 道题，仅限单词和语法题型。升级 Pro 后解锁所有题型和无限练习。</p>
+            <p>Free users can answer up to 20 questions per day, limited to Vocabulary and Grammar only. Upgrade to Pro to unlock all topics and unlimited practice.</p>
           </div>
         </div>
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">Pro 有哪些额外功能？</h3>
+          <h3 onclick="toggleFaq(this)">What extra features does Pro include?</h3>
           <div class="faq-answer">
-            <p>Pro 解锁所有题型（听力/口语/阅读/写作）、无限练习、成就系统、连续学习统计、无广告体验等。</p>
+            <p>Pro unlocks all topics (Listening/Speaking/Reading/Writing), unlimited practice, achievement system, study streak tracking, and ad-free experience.</p>
           </div>
         </div>
         <div class="faq-item">
-          <h3 onclick="toggleFaq(this)">如何取消自动续费？</h3>
+          <h3 onclick="toggleFaq(this)">How do I cancel auto-renewal?</h3>
           <div class="faq-answer">
-            <p>在个人中心 - 订阅管理中可以随时取消，取消后当前会员权益仍可使用至到期日。</p>
+            <p>You can cancel anytime in your Profile > Subscription settings. Your Pro benefits remain active until the end of your billing period.</p>
           </div>
         </div>
       </div>
