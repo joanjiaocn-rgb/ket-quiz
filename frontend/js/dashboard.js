@@ -54,6 +54,11 @@ async function checkSubscription() {
     }
   } catch (e) {
     console.error('检查订阅失败:', e);
+    // API 失败时，默认显示升级引导（假设是免费用户）
+    document.getElementById('proBtn').style.display = 'inline-block';
+    document.getElementById('proBanner').style.display = 'block';
+    document.getElementById('dailyQuota').style.display = 'block';
+    document.getElementById('todayCount').textContent = '0';
   }
 }
 
