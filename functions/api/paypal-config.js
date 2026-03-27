@@ -1,9 +1,9 @@
 // PayPal 配置
 export const PAYPAL_CONFIG = {
-  mode: 'sandbox', // 'sandbox' 或 'live'
-  clientId: 'Af7Scqb91NwnT2cofnPndwHYjqkImKSJGJGITLt8qlvxLdcvDw6tDctfk7xT1VH8jeKBAi1OjJeT411R',
-  clientSecret: 'EDBwT8xf200f54mN8orpRSWDQmY_HA3qFwPcy75kVUuiKbFTI38O6XvIZP0aTRiCjv8gh4dRR1bcQpLA',
-  apiBase: 'https://api-m.sandbox.paypal.com',
+  mode: 'live', // 'sandbox' 或 'live'
+  clientId: 'Af6w53RqP8kScLPh6CcEUZ7OJFO4jrH8niB-he73qQDRJNw6WglQ7YUIfAXnG2pYA0ehJs4_MUM_BvdJ',
+  clientSecret: 'ELj0nA73mbpu-gFE2ys991mU9Q1YqVwGWlg5c7i6NJ3q0Sq8zV3hphtq96hCocA0nNKmeT3qn_Gnbohj',
+  apiBase: 'https://api-m.paypal.com', // 正式环境 API
   webhookId: '', // 后续配置 Webhook 后填写
 };
 
@@ -11,24 +11,24 @@ export const PAYPAL_CONFIG = {
 export const PLANS = {
   monthly: {
     id: 'monthly',
-    name: 'Pro 月度',
-    price: 1.99, // USD
+    name: 'Pro Monthly',
+    price: 4.99, // USD
     currency: 'USD',
     interval: 'MONTH',
     cnyPrice: 9.9,
   },
   yearly: {
     id: 'yearly',
-    name: 'Pro 年度',
-    price: 14.99, // USD
+    name: 'Pro Yearly',
+    price: 49.99, // USD
     currency: 'USD',
     interval: 'YEAR',
     cnyPrice: 99,
   },
   lifetime: {
     id: 'lifetime',
-    name: '终身会员',
-    price: 39.99, // USD
+    name: 'Lifetime',
+    price: 149.99, // USD
     currency: 'USD',
     interval: null,
     cnyPrice: 299,
