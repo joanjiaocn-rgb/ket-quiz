@@ -24,7 +24,10 @@ async function checkSubscription() {
     });
     const data = await res.json();
 
-    if (data.isPro) {
+    // 使用 !! 将 isPro 转换为布尔值，null/undefined 会被视为 false
+    const isPro = !!data.isPro;
+
+    if (isPro) {
       // Pro 用户：隐藏升级按钮，解锁所有题型
       document.getElementById('proBtn').style.display = 'none';
       document.getElementById('proBanner').style.display = 'none';
