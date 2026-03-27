@@ -145,6 +145,6 @@ export async function onRequestPost({ request, env }) {
 
   } catch (error) {
     console.error('PayPal error:', error);
-    return jsonResp({ error: 'Payment service unavailable' }, 500);
+    return jsonResp({ error: 'Payment service unavailable', details: String(error) }, 500);
   }
 }
