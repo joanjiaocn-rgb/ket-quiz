@@ -11,7 +11,7 @@ async function loadPayPalSDK() {
     }
 
     const script = document.createElement('script');
-    script.src = 'https://www.paypal.com/sdk/js?client-id=Af7Scqb91NwnT2cofnPndwHYjqkImKSJGJGITLt8qlvxLdcvDw6tDctfk7xT1VH8jeKBAi1OjJeT411R&currency=USD&locale=zh_CN';
+    script.src = 'https://www.paypal.com/sdk/js?client-id=Af6w53RqP8kScLPh6CcEUZ7OJFO4jrH8niB-he73qQDRJNw6WglQ7YUIfAXnG2pYA0ehJs4_MUM_BvdJ&currency=USD&locale=en_US';
     script.onload = () => resolve(window.paypal);
     script.onerror = reject;
     document.head.appendChild(script);
@@ -163,9 +163,16 @@ function getPlanName(planId) {
 
 // 支付成功回调
 function onPaymentSuccess(result) {
-  console.log('支付成功:', result);
+  console.log('Payment successful:', result);
   
-  alert(`支付成功！🎉\n\n你已成功升级到 ${getPlanName(result.plan)} 会员！`);
+  let message = '';
+  if (result.type === 'trial') {
+    message = `Payment successful! 🎉\n\nYou have upgraded to ${getPlanName(result.plan)}!\n\nFirst month: $0.10\nThen $4.99/month`;
+  } else {
+    message = `Payment successful! 🎉\n\nYou have upgraded to ${getPlanName(result.plan)}!`;
+  }
+  
+  alert(message);
   
   setTimeout(() => {
     location.reload();
