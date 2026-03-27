@@ -2,28 +2,6 @@
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
 import { PAYPAL_CONFIG, PLANS, getAccessToken } from './paypal-config.js';
 
-async function getAccessToken() {
-  const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);
-  
-  const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${auth}`,
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('PayPal token error:', error);
-    throw new Error('Failed to get PayPal access token');
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
 export async function onRequestOptions() { return corsResp(); }
 
 export async function onRequestPost({ request, env }) {
