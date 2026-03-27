@@ -2,33 +2,33 @@
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
 
 const PAYPAL_CONFIG = {
-  mode: 'sandbox',
-  clientId: 'Af7Scqb91NwnT2cofnPndwHYjqkImKSJGJGITLt8qlvxLdcvDw6tDctfk7xT1VH8jeKBAi1OjJeT411R',
-  clientSecret: 'EDBwT8xf200f54mN8orpRSWDQmY_HA3qFwPcy75kVUuiKbFTI38O6XvIZP0aTRiCjv8gh4dRR1bcQpLA',
-  apiBase: 'https://api-m.sandbox.paypal.com',
+  mode: 'live',
+  clientId: 'Af6w53RqP8kScLPh6CcEUZ7OJFO4jrH8niB-he73qQDRJNw6WglQ7YUIfAXnG2pYA0ehJs4_MUM_BvdJ',
+  clientSecret: 'ELj0nA73mbpu-gFE2ys991mU9Q1YqVwGWlg5c7i6NJ3q0Sq8zV3hphtq96hCocA0nNKmeT3qn_Gnbohj',
+  apiBase: 'https://api-m.paypal.com',
 };
 
 const PLANS = {
   monthly: {
     id: 'monthly',
-    name: 'Pro 月度',
-    price: 1.99,
+    name: 'Pro Monthly',
+    price: 4.99,
     currency: 'USD',
     interval: 'MONTH',
     cnyPrice: 9.9,
   },
   yearly: {
     id: 'yearly',
-    name: 'Pro 年度',
-    price: 14.99,
+    name: 'Pro Yearly',
+    price: 49.99,
     currency: 'USD',
     interval: 'YEAR',
     cnyPrice: 99,
   },
   lifetime: {
     id: 'lifetime',
-    name: '终身会员',
-    price: 39.99,
+    name: 'Lifetime',
+    price: 149.99,
     currency: 'USD',
     interval: null,
     cnyPrice: 299,
@@ -95,7 +95,7 @@ export async function onRequestPost({ request, env }) {
 
     if (!orderId) {
       console.error('5. No orderId found!');
-      return jsonResp({ error: '缺少订单ID', body: body }, 400);
+      return jsonResp({ error: 'Missing order ID', body: body }, 400);
     }
 
     console.log('6. All checks passed, proceeding with capture...');
@@ -114,7 +114,7 @@ export async function onRequestPost({ request, env }) {
     if (!orderDetailsResponse.ok) {
       const error = await orderDetailsResponse.text();
       console.error('PayPal get order error:', error);
-      return jsonResp({ error: '获取订单信息失败' }, 500);
+      return jsonResp({ error: 'Failed to get order info' }, 500);
     }
 
     const orderDetails = await orderDetailsResponse.json();
@@ -145,7 +145,7 @@ export async function onRequestPost({ request, env }) {
     if (!captureResponse.ok) {
       const error = await captureResponse.text();
       console.error('PayPal capture error:', error);
-      return jsonResp({ error: '支付确认失败' }, 500);
+      return jsonResp({ error: 'Payment capture failed' }, 500);
     }
 
     const captureData = await captureResponse.json();
@@ -157,7 +157,7 @@ export async function onRequestPost({ request, env }) {
     console.log('12. Capture status:', captureStatus);
     
     if (captureStatus !== 'COMPLETED') {
-      return jsonResp({ error: '支付未完成', status: captureStatus }, 400);
+      return jsonResp({ error: 'Payment not completed', status: captureStatus }, 400);
     }
 
     const plan = PLANS[planId] || PLANS.monthly;
@@ -207,6 +207,6 @@ export async function onRequestPost({ request, env }) {
 
   } catch (error) {
     console.error('=== paypal-capture ERROR ===', error);
-    return jsonResp({ error: '服务器错误', details: String(error) }, 500);
+    return jsonResp({ error: 'Server error', details: String(error) }, 500);
   }
 }
