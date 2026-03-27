@@ -1,40 +1,6 @@
 // PayPal 创建订阅 API - 支持首月优惠
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
-
-const PAYPAL_CONFIG = {
-  mode: 'live',
-  clientId: 'Af6w53RqP8kScLPh6CcEUZ7OJFO4jrH8niB-he73qQDRJNw6WglQ7YUIfAXnG2pYA0ehJs4_MUM_BvdJ',
-  clientSecret: 'ELj0nA73mbpu-gFE2ys991mU9Q1YqVwGWlg5c7i6NJ3q0Sq8zV3hphtq96hCocA0nNKmeT3qn_Gnbohj',
-  apiBase: 'https://api-m.paypal.com',
-};
-
-// 定价方案
-const PLANS = {
-  monthly: {
-    id: 'monthly',
-    name: 'Pro Monthly',
-    regularPrice: 4.99,      // 正常价格
-    trialPrice: 0.10,        // 首月优惠价格
-    currency: 'USD',
-    interval: 'MONTH',
-  },
-  yearly: {
-    id: 'yearly',
-    name: 'Pro Yearly',
-    regularPrice: 49.99,
-    trialPrice: null,        // 年付没有首月优惠
-    currency: 'USD',
-    interval: 'YEAR',
-  },
-  lifetime: {
-    id: 'lifetime',
-    name: 'Lifetime',
-    regularPrice: 149.99,
-    trialPrice: null,
-    currency: 'USD',
-    interval: null,          // 一次性付款
-  },
-};
+import { PAYPAL_CONFIG, PLANS, getAccessToken } from './paypal-config.js';
 
 async function getAccessToken() {
   const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);

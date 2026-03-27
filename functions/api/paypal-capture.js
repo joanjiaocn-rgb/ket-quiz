@@ -1,61 +1,6 @@
 // PayPal 捕获订单 API（简化版）
 import { verifyJwt, json as jsonResp, cors as corsResp } from '../_utils.js';
-
-const PAYPAL_CONFIG = {
-  mode: 'live',
-  clientId: 'Af6w53RqP8kScLPh6CcEUZ7OJFO4jrH8niB-he73qQDRJNw6WglQ7YUIfAXnG2pYA0ehJs4_MUM_BvdJ',
-  clientSecret: 'ELj0nA73mbpu-gFE2ys991mU9Q1YqVwGWlg5c7i6NJ3q0Sq8zV3hphtq96hCocA0nNKmeT3qn_Gnbohj',
-  apiBase: 'https://api-m.paypal.com',
-};
-
-const PLANS = {
-  monthly: {
-    id: 'monthly',
-    name: 'Pro Monthly',
-    price: 4.99,
-    currency: 'USD',
-    interval: 'MONTH',
-    cnyPrice: 9.9,
-  },
-  yearly: {
-    id: 'yearly',
-    name: 'Pro Yearly',
-    price: 49.99,
-    currency: 'USD',
-    interval: 'YEAR',
-    cnyPrice: 99,
-  },
-  lifetime: {
-    id: 'lifetime',
-    name: 'Lifetime',
-    price: 149.99,
-    currency: 'USD',
-    interval: null,
-    cnyPrice: 299,
-  },
-};
-
-async function getAccessToken() {
-  const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);
-  
-  const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${auth}`,
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('PayPal token error:', error);
-    throw new Error('Failed to get PayPal access token');
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
+import { PAYPAL_CONFIG, PLANS, getAccessToken } from './paypal-config.js';
 
 export async function onRequestOptions() { return corsResp(); }
 
