@@ -29,8 +29,38 @@ export async function onRequestGet({ request, env }) {
   // 获取用户设置
   const settings = await env.DB.prepare('SELECT * FROM user_settings WHERE user_id = ?').bind(payload.id).first();
 
+  // 计算会员状态
+  let isPro = false;
+  let subscriptionStatus = 'free';
+  let proExpiresAt = null;
+
+  if (user?.is_pro) {
+    if (user?.pro_expires_at) {
+      const now = Date.now();
+      const expires = new Date(user.pro_expires_at).getTime();
+      isPro = expires > now;
+      proExpiresAt = user.pro_expires_at;
+    } else {
+      // 终身会员
+      isPro = true;
+    }
+    
+    if (isPro) {
+      subscriptionStatus = user.subscription_type || 'pro';
+    }
+  }
+
+  // 扩展 user 对象，添加会员状态字段
+  const userWithSubscription = {
+    ...user,
+    is_pro: isPro ? 1 : 0,
+    subscription_type: isPro ? (user.subscription_type || 'pro') : null,
+    subscription_status: subscriptionStatus,
+    pro_expires_at: proExpiresAt
+  };
+
   return jsonResp({
-    user,
+    user: userWithSubscription,
     profile: profile || null,
     statistics: stats || null,
     settings: settings || null
