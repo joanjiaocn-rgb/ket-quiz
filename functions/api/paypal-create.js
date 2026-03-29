@@ -35,7 +35,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const accessToken = await getAccessToken();
+    const accessToken = await getAccessToken(env);
     const customIdValue = `${payload.id}:${planId}`;
     
     // 终身会员使用一次性付款

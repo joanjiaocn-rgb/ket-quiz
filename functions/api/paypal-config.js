@@ -40,8 +40,12 @@ export const PLANS = {
 
 // 获取 PayPal API access token
 export async function getAccessToken(env) {
+  // 优先使用环境变量，回退到硬编码配置
+  const clientId = env?.PAYPAL_CLIENT_ID || PAYPAL_CONFIG.clientId;
+  const clientSecret = env?.PAYPAL_CLIENT_SECRET || PAYPAL_CONFIG.clientSecret;
+  
   // 使用 btoa 进行 Base64 编码（Cloudflare Workers 兼容）
-  const auth = btoa(`${PAYPAL_CONFIG.clientId}:${PAYPAL_CONFIG.clientSecret}`);
+  const auth = btoa(`${clientId}:${clientSecret}`);
   
   const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
     method: 'POST',
