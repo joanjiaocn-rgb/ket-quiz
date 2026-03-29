@@ -6,6 +6,14 @@ export async function onRequestOptions() { return corsResp(); }
 
 export async function onRequestPost({ request, env }) {
   console.log('PayPal create order API called');
+  console.log('Environment check:', {
+    hasEnv: !!env,
+    envType: typeof env,
+    envKeys: env ? Object.keys(env) : [],
+    hasPayPalClientId: !!env?.PAYPAL_CLIENT_ID,
+    hasPayPalClientSecret: !!env?.PAYPAL_CLIENT_SECRET,
+    hasDB: !!env?.DB
+  });
   
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
