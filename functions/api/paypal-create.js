@@ -127,9 +127,9 @@ export async function onRequestPost({ request, env }) {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('PayPal create order error:', error);
-      return jsonResp({ error: 'Failed to create order' }, 500);
+      const errorText = await response.text();
+      console.error('PayPal create order error:', errorText);
+      return jsonResp({ error: 'Failed to create order', details: errorText }, 500);
     }
 
     const order = await response.json();
