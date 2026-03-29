@@ -44,6 +44,17 @@ export async function getAccessToken(env) {
   const clientId = env?.PAYPAL_CLIENT_ID || PAYPAL_CONFIG.clientId;
   const clientSecret = env?.PAYPAL_CLIENT_SECRET || PAYPAL_CONFIG.clientSecret;
   
+  console.log('PayPal getAccessToken - env check:', {
+    hasEnv: !!env,
+    hasClientId: !!env?.PAYPAL_CLIENT_ID,
+    hasClientSecret: !!env?.PAYPAL_CLIENT_SECRET,
+    usingEnv: !!env?.PAYPAL_CLIENT_ID && !!env?.PAYPAL_CLIENT_SECRET
+  });
+  
+  if (!clientId || !clientSecret) {
+    throw new Error('PayPal credentials not configured');
+  }
+  
   // 使用 btoa 进行 Base64 编码（Cloudflare Workers 兼容）
   const auth = btoa(`${clientId}:${clientSecret}`);
   

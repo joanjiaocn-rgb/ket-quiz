@@ -213,25 +213,36 @@ function showSubscriptionStatus(status) {
   const cards = document.querySelectorAll('.pricing-card');
   cards.forEach(card => {
     card.classList.remove('current-plan');
+    // 重置所有按钮
+    const btn = card.querySelector('button');
+    if (btn) {
+      btn.textContent = 'Upgrade';
+      btn.disabled = false;
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn-primary');
+    }
   });
 
   // 标记当前方案
-  if (status.subscriptionType) {
-    let selector = '';
-    if (status.subscriptionType === 'monthly') selector = '.pro';
-    else if (status.subscriptionType === 'yearly') selector = '.pro-year';
-    else if (status.subscriptionType === 'lifetime') selector = '.lifetime';
-    
-    if (selector) {
-      const currentCard = document.querySelector(`.pricing-card${selector}`);
-      if (currentCard) {
-        currentCard.classList.add('current-plan');
-        const btn = currentCard.querySelector('button');
-        if (btn) {
-          btn.textContent = '当前方案';
-          btn.disabled = true;
-          btn.classList.remove('btn-primary');
-          btn.classList.add('btn-secondary');
+  let selector = '';
+  if (status.subscriptionType === 'monthly') selector = '.pro';
+  else if (status.subscriptionType === 'yearly') selector = '.pro-year';
+  else if (status.subscriptionType === 'lifetime') selector = '.lifetime';
+  else selector = '.free'; // 免费用户
+  
+  if (selector) {
+    const currentCard = document.querySelector(`.pricing-card${selector}`);
+    if (currentCard) {
+      currentCard.classList.add('current-plan');
+      const btn = currentCard.querySelector('button');
+      if (btn) {
+        btn.textContent = 'Current Plan';
+        btn.disabled = true;
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+        // 免费用户跳转到 dashboard
+        if (selector === '.free') {
+          btn.onclick = () => location.href = 'dashboard.html';
         }
       }
     }
