@@ -16,8 +16,8 @@ export async function onRequestGet({ request, env }) {
     return jsonResp({ error: 'token 无效' }, 401);
   }
 
-  // 获取用户基本信息（只查询原始表中肯定存在的字段）
-  const user = await env.DB.prepare('SELECT id, username, email, avatar FROM users WHERE id = ?').bind(payload.id).first();
+  // 获取用户基本信息
+  const user = await env.DB.prepare('SELECT id, username, email, avatar, is_pro, subscription_type, pro_expires_at FROM users WHERE id = ?').bind(payload.id).first();
   if (!user) return jsonResp({ error: '用户不存在' }, 404);
 
   // 获取用户详细资料
