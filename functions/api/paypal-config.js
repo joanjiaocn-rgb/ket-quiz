@@ -46,9 +46,13 @@ export async function getAccessToken(env) {
   
   console.log('PayPal getAccessToken - env check:', {
     hasEnv: !!env,
+    envKeys: env ? Object.keys(env) : [],
     hasClientId: !!env?.PAYPAL_CLIENT_ID,
     hasClientSecret: !!env?.PAYPAL_CLIENT_SECRET,
-    usingEnv: !!env?.PAYPAL_CLIENT_ID && !!env?.PAYPAL_CLIENT_SECRET
+    clientIdLength: env?.PAYPAL_CLIENT_ID?.length || 0,
+    clientSecretLength: env?.PAYPAL_CLIENT_SECRET?.length || 0,
+    usingEnv: !!env?.PAYPAL_CLIENT_ID && !!env?.PAYPAL_CLIENT_SECRET,
+    fallbackClientId: PAYPAL_CONFIG.clientId.substring(0, 10) + '...'
   });
   
   if (!clientId || !clientSecret) {
@@ -57,6 +61,11 @@ export async function getAccessToken(env) {
   
   // 使用 btoa 进行 Base64 编码（Cloudflare Workers 兼容）
   const auth = btoa(`${clientId}:${clientSecret}`);
+  
+  console.log('PayPal token request:', {
+    url: `${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`,
+    authHeader: 'Basic ' + auth.substring(0, 20) + '...'
+  });
   
   const response = await fetch(`${PAYPAL_CONFIG.apiBase}/v1/oauth2/token`, {
     method: 'POST',
@@ -68,12 +77,17 @@ export async function getAccessToken(env) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    console.error('PayPal token error:', error);
-    throw new Error('Failed to get PayPal access token');
+    const errorText = await response.text();
+    console.error('PayPal token error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText
+    });
+    throw new Error(`Failed to get PayPal access token: ${response.status} ${errorText}`);
   }
 
   const data = await response.json();
+  console.log('PayPal token success:', { tokenType: data.token_type, expiresIn: data.expires_in });
   return data.access_token;
 }
 
