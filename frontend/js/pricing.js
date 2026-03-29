@@ -139,12 +139,16 @@ async function checkSubscriptionStatus() {
     if (!response.ok) return null;
 
     const data = await response.json();
-    return {
+    console.log('Profile API response:', data); // 调试日志
+    
+    const result = {
       isPro: data.user?.is_pro === 1,
       subscriptionType: data.user?.subscription_type,
       subscriptionStatus: data.user?.subscription_status,
       proExpiresAt: data.user?.pro_expires_at,
     };
+    console.log('Parsed subscription status:', result); // 调试日志
+    return result;
   } catch (error) {
     console.error('Check subscription error:', error);
     return null;
